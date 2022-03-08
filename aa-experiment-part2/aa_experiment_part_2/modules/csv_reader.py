@@ -8,7 +8,7 @@ import pandas as pd
 from typing import Dict, List
 
 
-def csv_to_dicts(csv_path: str) -> List[Dict[int, str]]:
+def csv_to_dicts(csv_path: str) -> List[Dict[str, str]]:
     """
     Read a CSV file and for each row create a dict with the column name as key and the corresponding
     cell content as value
@@ -36,6 +36,6 @@ def csv_to_dicts(csv_path: str) -> List[Dict[int, str]]:
     for index, row in df.iterrows():
         participant = dict()
         for column in column_names:
-            participant[column] = row[column]
+            participant[column] = str(row[column])
         participants.append(participant)
     return participants
