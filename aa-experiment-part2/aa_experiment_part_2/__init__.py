@@ -22,8 +22,26 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    pass
-
+    treatment = models.StringField(initial="control")
+    age = models.IntegerField(min=16, max=150, label="What is your age?")
+    biological_sex = models.IntegerField(label="What is your sex assigned at birth?", choices=[
+        "male",
+        "female"
+    ])
+    gender = models.IntegerField(label="What is your Gender?", choices=[
+        "male",
+        "female",
+        "other"
+    ])
+    religion = models.IntegerField(label="What is your religion?", choices=[
+        "Hindu",
+        "Muslim",
+        "Christian",
+        "Sikh",
+        "Jaïn",
+        "Other",
+        "No religion"
+    ])
 
 # PAGES
 class MyPage(Page):
