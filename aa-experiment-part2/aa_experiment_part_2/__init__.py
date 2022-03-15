@@ -10,6 +10,24 @@ AA experiment
 """
 
 TREATMENTS = ["control", "caste", "ews"]
+OCCUPATION_CHOICES = [[1, 'cultivation own land'],
+                          [2, 'cultivation leased land'],
+                          [3, 'agricultural labour'],
+                          [4, 'animal husbandry'],
+                          [5, 'rental income'],
+                          [6, 'self-employment'],
+                          [7, 'skilled labour (electrician, plumber, tailor, carpenter, mason)'],
+                          [8, 'unskilled labour (construction worker, helper, stone cutter, NREGA '
+                              'work etc)'],
+                          [9, 'non farm petty business (kirana store, tailoring shop, carpentry '
+                              'shop, handicrafts business, fishing etc)'],
+                          [10, 'Salaried in private firm'],
+                          [11, 'Salaried in govt enterprise'],
+                          [12, 'Household work'],
+                          [13, 'Consultant/freelance'],
+                          [14, 'Gig worker (Ola, Uber, Zomato, Swiggy '
+                               'etc.)'],
+                          [-1, 'Others, specify']]
 
 
 class Constants(BaseConstants):
@@ -34,6 +52,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    consent_given = models.BooleanField(initial=False)
     treatment = models.StringField(initial="control")
     age = models.IntegerField(min=16, max=150, label="What is your age?")
     biological_sex = models.StringField(label="What is your sex assigned at birth?", choices=[
@@ -77,32 +96,80 @@ class Player(BasePlayer):
                                                           "completed?")
 
     occupation_father = models.IntegerField(label="What is your father's occupation?",
-                                            choices=[[1, 'cultivation own land'],
-                                                     [2, 'cultivation leased land'],
-                                                     [3, 'agricultural labour'],
-                                                     [4, 'animal husbandry'],
-                                                     [5, 'rental income'],
-                                                     [6, 'self-employment'],
-                                                     [7, 'skilled labour (electrician, plumber, '
-                                                         'tailor, carpenter, mason)'],
-                                                     [8, 'unskilled labour (construction worker, '
-                                                         'helper, stone cutter, NREGA work etc)'],
-                                                     [9, 'non farm petty business (kirana store, '
-                                                         'tailoring shop, carpentry shop, '
-                                                         'handicrafts business, fishing etc)'],
-                                                     [10, 'Salaried in private firm'],
-                                                     [11, 'Salaried in govt enterprise'],
-                                                     [12, 'Household work'],
-                                                     [13, 'Consultant/freelance'],
-                                                     [14, 'Gig worker (Ola, Uber, Zomato, Swiggy '
-                                                          'etc.)'],
-                                                     [15, 'Others, specify']],
-                                            widget=widgets.RadioSelectVertical,
-                                            verbose_name="")
-    
+                                            choices=OCCUPATION_CHOICES,
+                                            widget=widgets.RadioSelect)
+    occupation_father_other = models.StringField(label="If you selected 'Others', please specify "
+                                                       "your father's occupation", blank=True)
+
+    occupation_mother = models.IntegerField(label="What is your mother's occupation?",
+                                            choices=OCCUPATION_CHOICES,
+                                            widget=widgets.RadioSelect)
+    occupation_mother_other = models.StringField(label="If you selected 'Others', please specify "
+                                                       "your mother's occupation", blank=True)
+
+    fathers_education = models.StringField(label="What is your father’s education?", choices=[
+        "NO SCHOOLING",
+        "PRE-PRIMARY",
+        "PRIMARY",
+        "SECONDARY",
+        "HIGHER"
+    ])
+
+    mothers_education = models.StringField(label="What is your mother’s education?", choices=[
+        "NO SCHOOLING",
+        "PRE-PRIMARY",
+        "PRIMARY",
+        "SECONDARY",
+        "HIGHER"
+    ])
+
+    income_less_than_100_000 = models.BooleanField(label="Is your family income less than "
+                                                         "INR 100,000 per year?")
+
+    state_of_residence = models.StringField(label="What is your State of residence?",  # TODO: Change to State / Union territory?
+                                            choices=[
+                                                "Andhra Pradesh",
+                                                "Arunāchal Pradesh",
+                                                "Assam",
+                                                "Bihār",
+                                                "Chhattīsgarh",
+                                                "Goa",
+                                                "Gujarāt",
+                                                "Haryāna",
+                                                "Himāchal Pradesh",
+                                                "Jhārkhand",
+                                                "Karnātaka",
+                                                "Kerala",
+                                                "Madhya Pradesh",
+                                                "Mahārāshtra",
+                                                "Manipur",
+                                                "Meghālaya",
+                                                "Mizoram",
+                                                "Nāgāland",
+                                                "Odisha",
+                                                "Punjab",
+                                                "Rājasthān",
+                                                "Sikkim",
+                                                "Tamil Nādu",
+                                                "Telangāna",
+                                                "Tripura",
+                                                "Uttarākhand",
+                                                "Uttar Pradesh",
+                                                "West Bengal",
+                                                "Andaman and Nicobar Islands",
+                                                "Chandigarh",
+                                                "Dādra and Nagar Haveli and Damān and Diu",
+                                                "Delhi",
+                                                "Jammu and Kashmīr",
+                                                "Ladākh",
+                                                "Lakshadweep",
+                                                "Puducherry"
+                                            ])
 
 
 class Consent(Page):
+    form_model = "player"
+    form_fields = ["consent_given"]
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -119,7 +186,10 @@ class Consent(Page):
 
 class Demographics(Page):
     form_model = "player"
-    form_fields = ["jati", "gender"]
+    form_fields = ["age", "biological_sex", "gender", "religion", "jati", "school", "caste",
+                   "household_size", "years_of_education", "occupation_father",
+                   "occupation_father_other", "occupation_mother", "occupation_mother_other",
+                   "fathers_education", "mothers_education", "income_less_than_100_000"]
 
     @staticmethod
     def vars_for_template(player):

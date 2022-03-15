@@ -13,7 +13,12 @@
     <br><br>
     I understand that all the data collected from my responses will only be used for research and my identity will be
     kept anonymous.
-    <!-- TODO: What happens to those who do not give their consent? -->
-    {{ next_button }}
+    <br>
+    <br>
+    <div style="width:40%; margin: 0 auto;" id="inner">
+        <button style="margin:auto;" class="btn btn-primary" name="consent_given" value="True">Yes</button>
+        <button style="margin:auto;" class="btn btn-secondary" onclick="alert('If you do not want to give your consent, please return this HIT.');">No</button>
+    </div>
+
 
 {{ endblock }}
