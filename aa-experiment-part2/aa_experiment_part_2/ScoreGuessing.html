@@ -9,7 +9,7 @@
     </style>
     {{ if treatment == "control" }}
 
-        <table class="table">
+        <table id="participant-table" class="table">
             <tr>
                 {{ for key in keys}}
                     <th>{{ key }}</th>
@@ -37,5 +37,17 @@
         </table>
     {{ endif }}
     {{ next_button }}
+
+<script>
+    window.onload = () => {
+        let table = document.getElementById("participant-table");
+        for (let i = 0; i < table.rows.length; i++) {
+            if (i > 0 && i < 6) {
+                table.rows[i].style.border = "solid blue";
+            }
+        }
+    };
+
+</script>
 
 {{ endblock }}
