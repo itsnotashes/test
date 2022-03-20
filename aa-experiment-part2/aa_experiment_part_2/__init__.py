@@ -1,11 +1,14 @@
 import math
+from copy import deepcopy
 from typing import Union
 
 from otree.api import *
+from .modules.csv_reader import csv_to_dicts
 import itertools
 import random
 
 c = Currency
+CSV_PATH = "_static/aa_experiment_part_2/raven_data.csv"
 
 doc = """
 AA experiment
@@ -54,6 +57,8 @@ class Constants(BaseConstants):
     name_in_url = 'aa_experiment_part_2'
     players_per_group = None
     num_rounds = 1
+    print("Reading CSV")
+    participant_data = csv_to_dicts(CSV_PATH)
 
 
 def creating_session(subsession):
@@ -197,6 +202,11 @@ class Player(BasePlayer):
                                                               "A", "B", "C", "D"
                                                           ])
 
+    for participant in Constants.participant_data:
+        exec(f"guessed_score_{participant['Participant rank']} = "
+             "models.IntegerField(label='', min=0, max=100)")
+    del participant  # Necessary to avoid otree complaining that this variable is not stored in the db
+
 
 class Consent(Page):
     form_model = "player"
@@ -252,6 +262,24 @@ class ComprehensionCheck(Page):
             return "Wrong grade selected"
 
 
+class ScoreGuessing(Page):
+    form_model = "player"
+    form_fields = [f"guessed_score_{participant['Participant rank']}" for participant in
+                   Constants.participant_data]
+
+    @staticmethod
+    def vars_for_template(player):
+        # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
+        participants = deepcopy(Constants.participant_data.copy())
+        for i in range(len(participants)):
+            participants[i]["formfield_name"] = f"guessed_score_{participants[i]['Participant rank']}"
+        return dict(
+            treatment=player.treatment,
+            keys=Constants.participant_data[0].keys(),
+            participant_data=participants
+        )
+
+
 class Results(Page):
     pass
 
@@ -259,5 +287,6 @@ class Results(Page):
 page_sequence = [Consent,
                  # Demographics,
                  Introduction,
-                 ComprehensionCheck,
+                 # ComprehensionCheck,
+                 ScoreGuessing,
                  Results]

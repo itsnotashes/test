@@ -17,7 +17,8 @@ def csv_to_dicts(csv_path: str) -> List[Dict[str, str]]:
     :return: List of dicts containing participant information
     """
     if not os.path.isfile(csv_path):
-        raise ValueError(f"ERROR: CSV file under '{csv_path}' could not be read")
+        raise ValueError(f"ERROR: CSV file under '{csv_path}' could not be read. CWD: "
+                         f"'{os.getcwd()}'")
     df = pd.read_csv(csv_path)
     column_names = list(df)
     if "Participant rank" not in column_names:

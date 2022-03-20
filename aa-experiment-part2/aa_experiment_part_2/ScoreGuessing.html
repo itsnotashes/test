@@ -1,0 +1,41 @@
+{{ block title }}
+    Task
+{{ endblock }}
+{{ block content }}
+    <style>
+        div._formfield, div.controls, input.form-control {
+            display: inline-block;
+        }
+    </style>
+    {{ if treatment == "control" }}
+
+        <table class="table">
+            <tr>
+                {{ for key in keys}}
+                    <th>{{ key }}</th>
+                {{ endfor }}
+            </tr>
+
+            {{ for participant in participant_data}}
+                <tr>
+                    {{ for key in keys}}
+                        <td>
+                            {{ for k, v in participant.items }}
+                                {{ if k == key}}
+                                    {{ if key != "Score" and key != "formfield_name"}}
+                                        {{ v }}
+                                    {{ else  if key == "Score"}}
+                                        {{ formfield participant.formfield_name }} %
+                                        {{ formfield_errors participant.formfield_name }}
+                                    {{ endif }}
+                                {{ endif }}
+                            {{ endfor }}
+                        </td>
+                    {{ endfor }}
+                </tr>
+            {{ endfor }}
+        </table>
+    {{ endif }}
+    {{ next_button }}
+
+{{ endblock }}
