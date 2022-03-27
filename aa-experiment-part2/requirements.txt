@@ -1,4 +1,5 @@
-otree>=5.0.0a21
+otree>=5.0.0
 psycopg2>=2.8.4
 pandas
 pytest
+requests
