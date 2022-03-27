@@ -197,6 +197,26 @@ class Player(BasePlayer):
         "Other urban",
         "Rural"
     ])
+
+    crt_1 = models.IntegerField(label="1. If it takes 2 nurses 2 minutes to check 2 patients, how "
+                                      "many minutes does it take 40 nurses to check 40 patients?")
+    crt_2 = models.IntegerField(label="2. On a loaf of bread, there is a patch of mold. Every day, "
+                                      "the patch doubles in size. If it takes 24 days for the "
+                                      "patch to cover the entire loaf of bread, how many days "
+                                      "would it take for the patch to cover half of the loaf of "
+                                      "bread?")
+    crt_3 = models.IntegerField(label="3. If Anita can drink ten litres of water in 6 days, and "
+                                      "Archana can drink ten litres of water in 12 days, how many "
+                                      "days would it take for the two of  them together to have "
+                                      "drunk a total of ten litres of water?")
+    crt_4 = models.IntegerField(label="4. Avinash received both the 15th highest and the 15th "
+                                      "lowest mark in the class. How many students are in the "
+                                      "class?")
+    crt_5 = models.IntegerField(label="5. A tortoise starts crawling up a 6-foot-high rock wall "
+                                      "in the morning. During each day it crawls 3 yards and "
+                                      "during the night it slips back 2 yards. How many days will "
+                                      "it take the tortoise to reach the top of the wall?")
+
     percentage_correct = models.IntegerField(initial=random.randint(0, 100))
     comprehension_check_answer_grade = models.StringField(label="", choices=[
                                                               "A", "B", "C", "D"
@@ -243,23 +263,23 @@ class Introduction(Page):
         )
 
 
-class ComprehensionCheck(Page):
-    form_model = "player"
-    form_fields = ["comprehension_check_answer_grade"]
-
-    @staticmethod
-    def vars_for_template(player):
-        return dict(
-            treatment=player.treatment,
-            bonus=player.session.config['possible_bonus_for_each_score_report'],
-            percentage=player.percentage_correct
-        )
-
-    @staticmethod
-    def error_message(player, values):
-        if values["comprehension_check_answer_grade"] != \
-                get_grade_for_percentage_correct(player.percentage_correct):
-            return "Wrong grade selected"
+# class ComprehensionCheck(Page):
+#     form_model = "player"
+#     form_fields = ["comprehension_check_answer_grade"]
+#
+#     @staticmethod
+#     def vars_for_template(player):
+#         return dict(
+#             treatment=player.treatment,
+#             bonus=player.session.config['possible_bonus_for_each_score_report'],
+#             percentage=player.percentage_correct
+#         )
+#
+#     @staticmethod
+#     def error_message(player, values):
+#         if values["comprehension_check_answer_grade"] != \
+#                 get_grade_for_percentage_correct(player.percentage_correct):
+#             return "Wrong grade selected"
 
 
 class ScoreGuessing(Page):
@@ -280,6 +300,11 @@ class ScoreGuessing(Page):
         )
 
 
+class CRT(Page):
+    form_model = "player"
+    form_fields = [f"crt_{nr}" for nr in range(1, 5+1)]
+
+
 class Results(Page):
     pass
 
@@ -289,4 +314,5 @@ page_sequence = [Consent,
                  Introduction,
                  # ComprehensionCheck,
                  ScoreGuessing,
+                 CRT,
                  Results]
