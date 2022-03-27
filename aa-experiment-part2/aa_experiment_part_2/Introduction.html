@@ -2,81 +2,87 @@
     Introduction
 {{ endblock }}
 {{ block content }}
-    {{ if treatment == "control" }}
-        <div>
-            8 participants solved a test. We selected the 5 best performers among these 8 people.
-            <br><br>
-            On the next screen, the computer will show you some information about these 8 participants, including their
-            "grade", which will tell you the range of their marks out of 100. These are the ranges:  If they got between
-            75 and 100, they get "Grade A". Similarly, Grade B: 50-74; Grade C: 25-49 correct answers; Grade D: 0-24
-            correct answers.
-            <br><br>
-            Based on the information on the next screen, please write what you think the actual score (marks) of each
-            participant was.
-        </div>
+
+    <div>
+        8 participants solved a test. 5 are selected to receive a reward.
+        {{ if treatment == "control" }}
+            We selected the 5 best performers among these 8 people.
+        {{ elif treatment == "caste" }}
+            3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are reserved for the best
+            performing SC candidates.
+        {{ elif treatment == "ews" }}
+            3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are reserved for the best
+            performing EWS candidates.
+        {{ endif }}
         <br><br>
-        <div style="font-size: 0.9em">
-            You may earn a bonus of {{ bonus }} for each score report you make for the 8 test-takers. Your score reports
-            will affect your chances of receiving the bonus in each case. The likelihood of you receiving the bonus of
-            {{ bonus }} is higher, the closer your reported score is to the true score of a test-taker. If you report
-            your estimates accurately and truthfully, this will be best for you in terms of your expected payment from
-            the experiment. Below we will explain the <span style="text-decoration: underline">payment procedure</span>
-            and some <span style="text-decoration: underline">examples</span> of how it will work. You are invited to
-            review these explanations. Please note that they are not necessary to understand the experiment and can be
-            skipped without any harm if you are not interested.
-        </div>
-
-        <table stlye="width: 100%">
-            <tr>
-                <th><a onclick="document.getElementById('description-payment').style.display = 'block';">Payment
-                    procedure (click to expand):</a></th>
-                <th style="min-width:40%"></th>
-                <th><a onclick="document.getElementById('examples').style.display = 'block';">Examples (click to
-                    expand):</a></th>
-            </tr>
-            <tr>
-                <td>
-                    <div id="description-payment" style="display: none">
-                        After you finished reporting your estimates for all scores, for each of the scores reported
-                        across all 8 test-takes you may earn a bonus of {{ bonus }} as follows:
-                        <br><br>
-                        1) The computer will randomly select a number between 0 and 625. Every number between 0 and 625
-                        is equally likely.
-                        <br><br>
-                        2) The difference between your reported score estimate and the true score is the so-called
-                        prediction error. If your prediction error, multiplied by itself, is not larger than the random
-                        number then you will receive the {{ bonus }} bonus. Otherwise, you will receive no bonus.
-                        <br><br>
-                        You may wonder why we have chosen this payment rule. The reason is that this payment rule makes
-                        it optimal for you to indicate your true estimates.
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                    <div id="examples" style="display: none">
-                        <em>Example 1:</em>
-                        <br><br>
-                        Let's suppose you report a score 85 for test-taker 1, while their true score is 80. Thus, your
-                        prediction error is (85-80) = 5. Your prediction error, multiplied by itself, is 25. If the
-                        random number that is drawn by the computer is greater than or equal to 25, for example 60, then
-                        you will receive the {{ bonus }} bonus. If the random number that is drawn by the computer is
-                        smaller than 25, for example 20, then you will receive no bonus.
-                        <br><br>
-                        <em>Example 2:</em>
-                        <br><br>
-                        Let's suppose you report a score 54 for test-taker 2, while their true score is 65. Thus, your
-                        prediction error is (54-65) = -11. Your prediction error, multiplied by itself, is 121. If the
-                        random number that is drawn by the computer is greater than or equal to 121, for example 350,
-                        then you will receive the XX bonus. If the random number that is drawn by the computer is
-                        smaller than 121, for example 57, then you will receive no bonus.
-                    </div>
-                </td>
-            </tr>
-        </table>
+        On the next screen, the computer will show you some information about these 8 participants, including their
+        "grade", which will tell you the range of their marks out of 100. These are the ranges:  If they got between
+        75 and 100, they get "Grade A". Similarly, Grade B: 50-74; Grade C: 25-49 correct answers; Grade D: 0-24
+        correct answers.
         <br><br>
+        Based on the information on the next screen, please write what you think the actual score (marks) of each
+        participant was.
+    </div>
+    <br><br>
+    <div style="font-size: 0.9em">
+        You may earn a bonus of {{ bonus }} for each score report you make for the 8 test-takers. Your score reports
+        will affect your chances of receiving the bonus in each case. The likelihood of you receiving the bonus of
+        {{ bonus }} is higher, the closer your reported score is to the true score of a test-taker. If you report
+        your estimates accurately and truthfully, this will be best for you in terms of your expected payment from
+        the experiment. Below we will explain the <span style="text-decoration: underline">payment procedure</span>
+        and some <span style="text-decoration: underline">examples</span> of how it will work. You are invited to
+        review these explanations. Please note that they are not necessary to understand the experiment and can be
+        skipped without any harm if you are not interested.
+    </div>
 
-
-    {{ endif }}
+    <table stlye="width: 100%">
+        <tr>
+            <th><a onclick="document.getElementById('description-payment').style.display = 'block';">Payment
+                procedure (click to expand):</a></th>
+            <th style="min-width:40%"></th>
+            <th><a onclick="document.getElementById('examples').style.display = 'block';">Examples (click to
+                expand):</a></th>
+        </tr>
+        <tr>
+            <td>
+                <div id="description-payment" style="display: none">
+                    After you finished reporting your estimates for all scores, for each of the scores reported
+                    across all 8 test-takes you may earn a bonus of {{ bonus }} as follows:
+                    <br><br>
+                    1) The computer will randomly select a number between 0 and 625. Every number between 0 and 625
+                    is equally likely.
+                    <br><br>
+                    2) The difference between your reported score estimate and the true score is the so-called
+                    prediction error. If your prediction error, multiplied by itself, is not larger than the random
+                    number then you will receive the {{ bonus }} bonus. Otherwise, you will receive no bonus.
+                    <br><br>
+                    You may wonder why we have chosen this payment rule. The reason is that this payment rule makes
+                    it optimal for you to indicate your true estimates.
+                </div>
+            </td>
+            <td></td>
+            <td>
+                <div id="examples" style="display: none">
+                    <em>Example 1:</em>
+                    <br><br>
+                    Let's suppose you report a score 85 for test-taker 1, while their true score is 80. Thus, your
+                    prediction error is (85-80) = 5. Your prediction error, multiplied by itself, is 25. If the
+                    random number that is drawn by the computer is greater than or equal to 25, for example 60, then
+                    you will receive the {{ bonus }} bonus. If the random number that is drawn by the computer is
+                    smaller than 25, for example 20, then you will receive no bonus.
+                    <br><br>
+                    <em>Example 2:</em>
+                    <br><br>
+                    Let's suppose you report a score 54 for test-taker 2, while their true score is 65. Thus, your
+                    prediction error is (54-65) = -11. Your prediction error, multiplied by itself, is 121. If the
+                    random number that is drawn by the computer is greater than or equal to 121, for example 350,
+                    then you will receive the XX bonus. If the random number that is drawn by the computer is
+                    smaller than 121, for example 57, then you will receive no bonus.
+                </div>
+            </td>
+        </tr>
+    </table>
+    <br><br>
     {{ formfields }}
     {{ next_button }}
 
