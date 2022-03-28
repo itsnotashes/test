@@ -172,7 +172,7 @@ class Player(BasePlayer):
                                                 "Jhārkhand",
                                                 "Karnātaka",                                                
                                                 "Kerala",
-                                                "Ladākh",
+                                                "Ladākh (UT)",
                                                 "Lakshadweep (UT)",
                                                 "Madhya Pradesh",
                                                 "Mahārāshtra",
