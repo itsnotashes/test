@@ -244,6 +244,9 @@ class Consent(Page):
                     math.ceil(player.session.num_participants / len(TREATMENTS)):
                 player.treatment = treatment
                 treatment_assigned = True
+                player.session.nr_participants_in_treatments[treatment] += 1
+                return
+        player.treatment = treatment
 
 
 class Demographics(Page):
