@@ -171,6 +171,7 @@ class Player(BasePlayer):
                                                 "Jammu and Kashmīr (UT)",
                                                 "Jhārkhand",
                                                 "Karnātaka",
+                                                "Ladākh",
                                                 "Kerala",
                                                 "Lakshadweep (UT)",
                                                 "Madhya Pradesh",
@@ -189,8 +190,7 @@ class Player(BasePlayer):
                                                 "Tripura",
                                                 "Uttar Pradesh",
                                                 "Uttarākhand",
-                                                "West Bengal",
-                                                "Ladākh",
+                                                "West Bengal",                                                
                                             ])
 
     living_area = models.StringField(label="Do you live in an urban or rural area?", choices=[
