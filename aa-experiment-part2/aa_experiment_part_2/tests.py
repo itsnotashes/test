@@ -40,6 +40,14 @@ class PlayerBot(Bot):
 
         yield Introduction
 
+        html_aa = "<th>Affirmative action status</th>"
+        if self.case == "treatment=control":
+            expect(html_aa, "not in", self.html)
+        elif self.case == "treatment=caste":
+            expect(html_aa, "in", self.html)
+        else:
+            expect(html_aa, "in", self.html)
+
         if self.case == "invalid input score guessing":
             for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
                 submit = dict()

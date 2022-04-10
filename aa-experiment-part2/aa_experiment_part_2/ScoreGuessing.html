@@ -5,31 +5,36 @@
     <style>
         div._formfield, div.controls, input.form-control {
             display: inline-block;
+            width: 1.5cm;
         }
     </style>
 
     <table id="participant-table" class="table">
         <tr>
             {{ for key in keys}}
-                <th>{{ key }}</th>
+                {{ if treatment != "control" or key != "Affirmative action status" }}
+                    <th>{{ key }}</th>
+                {{ endif }}
             {{ endfor }}
         </tr>
 
         {{ for participant in participant_data}}
             <tr>
                 {{ for key in keys}}
-                    <td>
-                        {{ for k, v in participant.items }}
-                            {{ if k == key}}
-                                {{ if key != "Score" and key != "formfield_name"}}
-                                    {{ v }}
-                                {{ else  if key == "Score"}}
-                                    {{ formfield participant.formfield_name }} %
-                                    {{ formfield_errors participant.formfield_name }}
+                    {{ if treatment != "control" or key != "Affirmative action status" }}
+                        <td>
+                            {{ for k, v in participant.items }}
+                                {{ if k == key}}
+                                    {{ if key != "Score" and key != "formfield_name"}}
+                                        {{ v }}
+                                    {{ else  if key == "Score"}}
+                                        {{ formfield participant.formfield_name }} %
+                                        {{ formfield_errors participant.formfield_name }}
+                                    {{ endif }}
                                 {{ endif }}
-                            {{ endif }}
-                        {{ endfor }}
-                    </td>
+                            {{ endfor }}
+                        </td>
+                    {{ endif }}
                 {{ endfor }}
             </tr>
         {{ endfor }}
