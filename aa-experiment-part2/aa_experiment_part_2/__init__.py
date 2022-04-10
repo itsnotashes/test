@@ -235,18 +235,21 @@ class Consent(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        treatment_assigned = False
         i = 0
-        while not treatment_assigned and i < len(TREATMENTS):
+        treatment = next(player.session.treatment_iterator)
+        while i < len(TREATMENTS):
             i += 1
-            treatment = next(player.session.treatment_iterator)
             if player.session.nr_participants_in_treatments[treatment] < \
                     math.ceil(player.session.num_participants / len(TREATMENTS)):
                 player.treatment = treatment
-                treatment_assigned = True
                 player.session.nr_participants_in_treatments[treatment] += 1
                 return
+            treatment = next(player.session.treatment_iterator)
         player.treatment = treatment
+
+
+class Start(Page):  # Necessary to allow externally assigning treatments in tests
+    pass
 
 
 class Demographics(Page):
@@ -314,9 +317,10 @@ class Results(Page):
 
 
 page_sequence = [Consent,
-                 Demographics,
+                 Start,
                  Introduction,
                  # ComprehensionCheck,  # If reactivated, add questions for all treatment groups
                  ScoreGuessing,
                  CRT,
+                 Demographics,
                  Results]

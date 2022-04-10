@@ -20,8 +20,56 @@ class PlayerBot(Bot):
             self.player.treatment = "caste"
         else:
             self.player.treatment = "ews"
+
         print(self.player.treatment)  # This call is necessary, because otree does not store the
         # updated value otherwise, so do not remove!
+
+        yield Start
+
+        if self.case == "treatment=control":
+            expect("We selected the 5 best performers among these 8 people.", "in",
+                   self.html)
+        elif self.case == "treatment=caste":
+            expect("3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are "
+                   "reserved for the best performing SC candidates.", "in",
+                   self.html)
+        else:
+            expect("3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are "
+                   "reserved for the best performing EWS candidates.", "in",
+                   self.html)
+
+        yield Introduction
+
+        if self.case == "invalid input score guessing":
+            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                submit = dict()
+                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                    if j == i:
+                        submit[f"guessed_score_{j}"] = -1  # invalid percentage
+                    else:
+                        submit[f"guessed_score_{j}"] = 50
+                yield SubmissionMustFail(ScoreGuessing, submit)
+
+            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                submit = dict()
+                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                    if j == i:
+                        submit[f"guessed_score_{j}"] = 101  # invalid percentage
+                    else:
+                        submit[f"guessed_score_{j}"] = 50
+                yield SubmissionMustFail(ScoreGuessing, submit)
+
+        submit = dict()
+        for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
+            submit[f"guessed_score_{j}"] = 50
+        yield Submission(ScoreGuessing, submit)
+        yield Submission(CRT, {
+            "crt_1": 1,
+            "crt_2": 1,
+            "crt_3": 1,
+            "crt_4": 1,
+            "crt_5": 1
+        })
 
         if self.case == "invalid input demographics":
             yield SubmissionMustFail(Demographics,
@@ -338,48 +386,4 @@ class PlayerBot(Bot):
                              "living_area": "Metro urban"
                          })
 
-        if self.case == "treatment=control":
-            expect("We selected the 5 best performers among these 8 people.", "in",
-                   self.html)
-        elif self.case == "treatment=caste":
-            expect("3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are "
-                   "reserved for the best performing SC candidates.", "in",
-                   self.html)
-        else:
-            expect("3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are "
-                   "reserved for the best performing EWS candidates.", "in",
-                   self.html)
-
-        yield Introduction
-
-        if self.case == "invalid input score guessing":
-            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                submit = dict()
-                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                    if j == i:
-                        submit[f"guessed_score_{j}"] = -1  # invalid percentage
-                    else:
-                        submit[f"guessed_score_{j}"] = 50
-                yield SubmissionMustFail(ScoreGuessing, submit)
-
-            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                submit = dict()
-                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                    if j == i:
-                        submit[f"guessed_score_{j}"] = 101  # invalid percentage
-                    else:
-                        submit[f"guessed_score_{j}"] = 50
-                yield SubmissionMustFail(ScoreGuessing, submit)
-
-        submit = dict()
-        for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
-            submit[f"guessed_score_{j}"] = 50
-        yield Submission(ScoreGuessing, submit)
-        yield Submission(CRT, {
-            "crt_1": 1,
-            "crt_2": 1,
-            "crt_3": 1,
-            "crt_4": 1,
-            "crt_5": 1
-        })
         yield Results
