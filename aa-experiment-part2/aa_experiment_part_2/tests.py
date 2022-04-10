@@ -347,25 +347,6 @@ class PlayerBot(Bot):
                                          "income_less_than_100_000": False,
                                          "state_of_residence": "Bihār"  # living_area missing
                                      })
-            yield SubmissionMustFail(Demographics,
-                                     {
-                                         "age": 25,
-                                         "biological_sex": "Male",
-                                         "gender": "Male",
-                                         "religion": "Hindu",
-                                         "school": "private",
-                                         "caste": "SC",  # jati missing
-                                         "household_size": 2,
-                                         "years_of_education": 2,
-                                         "occupation_father": 1,
-                                         "occupation_mother": 1,
-                                         "fathers_education": "SECONDARY",
-                                         "mothers_education": "SECONDARY",
-                                         "income_less_than_100_000": False,
-                                         "state_of_residence": "Bihār",
-                                         "living_area": "Metro urban"
-                                     })
-
         yield Submission(Demographics,
                          {
                              "age": 25,

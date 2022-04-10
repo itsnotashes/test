@@ -100,8 +100,8 @@ class Player(BasePlayer):
         "Other",
         "No religion"
     ])
-    jati = models.StringField(label="What is your Jati? (do not change if you prefer not to "
-                                    "answer)", initial="prefer not to answer")
+    jati = models.StringField(label="What is your Jati? (leave empty if you prefer not to "
+                                    "answer)", blank=True)
 
     school = models.StringField(label="What type of school did you attend?", choices=[
         "private",
