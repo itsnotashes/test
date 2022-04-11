@@ -33,6 +33,14 @@ OCCUPATION_CHOICES = [[1, 'cultivation own land'],
                                'etc.)'],
                           [-1, 'Others, specify']]
 
+CORRECT_CRT_SOLUTIONS = {
+    "crt_1": 2,
+    "crt_2": 23,
+    "crt_3": 4,
+    "crt_4": 29,
+    "crt_5": 1
+}
+
 
 def get_grade_for_percentage_correct(percentage_correct: Union[float, int]) -> str:
     """
@@ -208,7 +216,7 @@ class Player(BasePlayer):
                                       "bread?")
     crt_3 = models.IntegerField(label="3. If Anita can drink ten litres of water in 6 days, and "
                                       "Archana can drink ten litres of water in 12 days, how many "
-                                      "days would it take for the two of  them together to have "
+                                      "days would it take for the two of them together to have "
                                       "drunk a total of ten litres of water?")
     crt_4 = models.IntegerField(label="4. Avinash received both the 15th highest and the 15th "
                                       "lowest mark in the class. How many students are in the "
@@ -217,7 +225,6 @@ class Player(BasePlayer):
                                       "in the morning. During each day it crawls 3 yards and "
                                       "during the night it slips back 2 yards. How many days will "
                                       "it take the tortoise to reach the top of the wall?")
-
     percentage_correct = models.IntegerField(initial=random.randint(0, 100))
     comprehension_check_answer_grade = models.StringField(label="", choices=[
                                                               "A", "B", "C", "D"
@@ -306,10 +313,36 @@ class ScoreGuessing(Page):
             participant_data=participants
         )
 
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        answer_solution_pairs = []
+        for participant in Constants.participant_data:
+            answer = eval(f"player.guessed_score_{participant['Participant rank']}")
+            answer_solution_pairs.append((answer, int(participant["Score"])))
+
+        for answer, solution in answer_solution_pairs:
+            if answer == solution:
+                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+
 
 class CRT(Page):
     form_model = "player"
     form_fields = [f"crt_{nr}" for nr in range(1, 5+1)]
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            bonus=player.session.config['possible_bonus_for_each_crt_item']
+        )
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        answer_key_pairs = [(player.crt_1, "crt_1"), (player.crt_2, "crt_2"),
+                                 (player.crt_3, "crt_3"), (player.crt_4, "crt_4"),
+                                 (player.crt_4, "crt_4")]
+        for answer, key in answer_key_pairs:
+            if answer == CORRECT_CRT_SOLUTIONS[key]:
+                player.payoff += player.session.config['possible_bonus_for_each_crt_item']
 
 
 class Results(Page):

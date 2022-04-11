@@ -5,7 +5,8 @@ SESSION_CONFIGS = [
         name='aa_experiment',
         app_sequence=['aa_experiment_part_2'],
         num_demo_participants=3,
-        possible_bonus_for_each_score_report="XX"
+        possible_bonus_for_each_score_report=100,
+        possible_bonus_for_each_crt_item=200
     ),
 ]
 
