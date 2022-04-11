@@ -15,23 +15,23 @@ AA experiment
 """
 TREATMENTS = ["control", "caste", "ews"]
 OCCUPATION_CHOICES = [[1, 'cultivation own land'],
-                          [2, 'cultivation leased land'],
-                          [3, 'agricultural labour'],
-                          [4, 'animal husbandry'],
-                          [5, 'rental income'],
-                          [6, 'self-employment'],
-                          [7, 'skilled labour (electrician, plumber, tailor, carpenter, mason)'],
-                          [8, 'unskilled labour (construction worker, helper, stone cutter, NREGA '
-                              'work etc)'],
-                          [9, 'non farm petty business (kirana store, tailoring shop, carpentry '
-                              'shop, handicrafts business, fishing etc)'],
-                          [10, 'Salaried in private firm'],
-                          [11, 'Salaried in govt enterprise'],
-                          [12, 'Household work'],
-                          [13, 'Consultant/freelance'],
-                          [14, 'Gig worker (Ola, Uber, Zomato, Swiggy '
-                               'etc.)'],
-                          [-1, 'Others, specify']]
+                      [2, 'cultivation leased land'],
+                      [3, 'agricultural labour'],
+                      [4, 'animal husbandry'],
+                      [5, 'rental income'],
+                      [6, 'self-employment'],
+                      [7, 'skilled labour (electrician, plumber, tailor, carpenter, mason)'],
+                      [8, 'unskilled labour (construction worker, helper, stone cutter, NREGA '
+                          'work etc)'],
+                      [9, 'non farm petty business (kirana store, tailoring shop, carpentry '
+                          'shop, handicrafts business, fishing etc)'],
+                      [10, 'Salaried in private firm'],
+                      [11, 'Salaried in govt enterprise'],
+                      [12, 'Household work'],
+                      [13, 'Consultant/freelance'],
+                      [14, 'Gig worker (Ola, Uber, Zomato, Swiggy '
+                           'etc.)'],
+                      [-1, 'Others, specify']]
 
 CORRECT_CRT_SOLUTIONS = {
     "crt_1": 2,
@@ -159,7 +159,8 @@ class Player(BasePlayer):
     income_less_than_100_000 = models.BooleanField(label="Is your family income less than "
                                                          "INR 100,000 per year?")
 
-    state_of_residence = models.StringField(label="What is your State of residence?",  # TODO: Change to State / Union territory?
+    state_of_residence = models.StringField(label="What is your State of residence?",
+                                            # TODO: Change to State / Union territory?
                                             choices=[
                                                 "I do not live in India",
                                                 "Andaman and Nicobar Islands (UT)",
@@ -178,7 +179,7 @@ class Player(BasePlayer):
                                                 "Himāchal Pradesh",
                                                 "Jammu and Kashmīr (UT)",
                                                 "Jhārkhand",
-                                                "Karnātaka",                                                
+                                                "Karnātaka",
                                                 "Kerala",
                                                 "Ladākh (UT)",
                                                 "Lakshadweep (UT)",
@@ -198,7 +199,7 @@ class Player(BasePlayer):
                                                 "Tripura",
                                                 "Uttar Pradesh",
                                                 "Uttarākhand",
-                                                "West Bengal",                                                
+                                                "West Bengal",
                                             ])
 
     living_area = models.StringField(label="Do you live in an urban or rural area?", choices=[
@@ -227,8 +228,8 @@ class Player(BasePlayer):
                                       "it take the tortoise to reach the top of the wall?")
     percentage_correct = models.IntegerField(initial=random.randint(0, 100))
     comprehension_check_answer_grade = models.StringField(label="", choices=[
-                                                              "A", "B", "C", "D"
-                                                          ])
+        "A", "B", "C", "D"
+    ])
 
     for participant in Constants.participant_data:
         exec(f"guessed_score_{participant['Participant rank']} = "
@@ -239,6 +240,20 @@ class Player(BasePlayer):
 class Consent(Page):
     form_model = "player"
     form_fields = ["consent_given"]
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            show_up=player.session.config['show_up_fee'],
+            max_additional_amount=player.session.config['possible_bonus_for_each_crt_item'] * 5 +
+                                  player.session.config['possible_bonus_for_each_score_report'] *
+                                  len(Constants.participant_data),
+            min_payoff=player.session.config['show_up_fee'],
+            max_payoff=player.session.config['show_up_fee'] +
+                       player.session.config['possible_bonus_for_each_crt_item'] * 5 +
+                       player.session.config['possible_bonus_for_each_score_report'] *
+                       len(Constants.participant_data)
+        )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -266,6 +281,10 @@ class Demographics(Page):
                    "occupation_father_other", "occupation_mother", "occupation_mother_other",
                    "fathers_education", "mothers_education", "income_less_than_100_000",
                    "state_of_residence", "living_area"]
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        player.payoff += player.session.config['show_up_fee']
 
 
 class Introduction(Page):
@@ -306,7 +325,8 @@ class ScoreGuessing(Page):
         # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
         participants = deepcopy(Constants.participant_data.copy())
         for i in range(len(participants)):
-            participants[i]["formfield_name"] = f"guessed_score_{participants[i]['Participant rank']}"
+            participants[i][
+                "formfield_name"] = f"guessed_score_{participants[i]['Participant rank']}"
         return dict(
             treatment=player.treatment,
             keys=Constants.participant_data[0].keys(),
@@ -327,7 +347,7 @@ class ScoreGuessing(Page):
 
 class CRT(Page):
     form_model = "player"
-    form_fields = [f"crt_{nr}" for nr in range(1, 5+1)]
+    form_fields = [f"crt_{nr}" for nr in range(1, 5 + 1)]
 
     @staticmethod
     def vars_for_template(player):
@@ -338,8 +358,8 @@ class CRT(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         answer_key_pairs = [(player.crt_1, "crt_1"), (player.crt_2, "crt_2"),
-                                 (player.crt_3, "crt_3"), (player.crt_4, "crt_4"),
-                                 (player.crt_4, "crt_4")]
+                            (player.crt_3, "crt_3"), (player.crt_4, "crt_4"),
+                            (player.crt_4, "crt_4")]
         for answer, key in answer_key_pairs:
             if answer == CORRECT_CRT_SOLUTIONS[key]:
                 player.payoff += player.session.config['possible_bonus_for_each_crt_item']

@@ -69,21 +69,17 @@ class PlayerBot(Bot):
 
         submit = dict()
         if self.case == "control all bonuses":
-            print(f"payoff is before {self.player.payoff}")
             for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
                 submit[f"guessed_score_{j}"] = Constants.participant_data[j-1]["Score"]
             yield Submission(ScoreGuessing, submit)
             expect(self.player.payoff,
                    len(Constants.participant_data) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
-            print(f"payoff is now {self.player.payoff}")
         else:
-            print(f"B payoff is before {self.player.payoff}")
             for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
                 submit[f"guessed_score_{j}"] = int(
                     Constants.participant_data[j-1]["Score"])+1
             yield Submission(ScoreGuessing, submit)
-            print(f"B payoff is now {self.player.payoff}")
             expect(self.player.payoff, 0)
         if self.case == "control all bonuses":
             yield Submission(CRT, {
@@ -403,5 +399,13 @@ class PlayerBot(Bot):
                              "state_of_residence": "Bihār",
                              "living_area": "Metro urban"
                          })
+        if self.case == "control all bonuses":
+            expect(self.player.payoff,
+                   5 * self.player.session.config['possible_bonus_for_each_crt_item'] +
+                   len(Constants.participant_data) *
+                   self.player.session.config['possible_bonus_for_each_score_report'] +
+                   self.player.session.config['show_up_fee'])
+        else:
+            expect(self.player.payoff, self.player.session.config['show_up_fee'])
 
         yield Results
