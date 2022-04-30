@@ -1,5 +1,11 @@
 {{ block title }}
     Introduction
+    <style>
+        table.grade-table td, table.grade-table th {
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>
 {{ endblock }}
 {{ block content }}
     <div>
@@ -15,9 +21,25 @@
         {{ endif }}
         <br><br>
         On the next screen, the computer will show you some information about these 8 participants, including their
-        "grade", which will tell you the range of their marks out of 100. These are the ranges:  If they got between
-        75 and 100, they get "Grade A". Similarly, Grade B: 50-74; Grade C: 25-49 correct answers; Grade D: 0-24
-        correct answers.
+        "grade", which will tell you the range of their marks out of 100. These are the ranges per grade:
+        <br><br>
+        <table class="grade-table">
+            <tr>
+                <th>Grade</th><th>Range</th>
+            </tr>
+            <tr>
+                <td>A</td><td>75 - 100</td>
+            </tr>
+            <tr>
+                <td>B</td><td>50 - 74</td>
+            </tr>
+            <tr>
+                <td>C</td><td>25 - 49</td>
+            </tr>
+            <tr>
+                <td>D</td><td>0 - 24</td>
+            </tr>
+        </table>
         <br><br>
         Based on the information on the next screen, please write what you think the actual score (marks) of each
         participant was.
