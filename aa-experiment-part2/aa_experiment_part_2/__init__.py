@@ -41,6 +41,13 @@ CORRECT_CRT_SOLUTIONS = {
     "crt_5": 1
 }
 
+GRADE_RANGES = {
+    "A": (75, 100),
+    "B": (50, 74),
+    "C": (25, 49),
+    "D": (0, 24)
+}
+
 
 def get_grade_for_percentage_correct(percentage_correct: Union[float, int]) -> str:
     """
@@ -96,6 +103,9 @@ class Player(BasePlayer):
     # Index of Constant.participant_data to avoid having the same data twice for one participant
     csv_data_index_task_1 = models.IntegerField(blank=True, initial=0)
     # Task 2 has index csv_data_index_task_1 + 1 and Task 3 accordingly + 2
+
+    # Record non-attentive score guessers
+    gave_impossible_score_not_matching_grade = models.BooleanField(blank=True, initial=False)
 
     age = models.IntegerField(min=16, max=150, label="What is your age?")
     biological_sex = models.StringField(label="What is your sex assigned at birth?", choices=[
@@ -334,6 +344,19 @@ class ScoreGuessing(Page):
     form_model = "player"
     form_fields = [f"guessed_score_{participant['Participant ID']}" for participant in
                    Constants.participant_data[0]]  # Always the same format and nr of rows
+
+    @staticmethod
+    def error_message(player: Player, values):
+        scores = []
+        for form_field in ScoreGuessing.form_fields:
+            scores.append(values[form_field])
+        grades = [participant["Grade"] for participant in
+                  Constants.participant_data[player.csv_data_index_task_1]]
+        for i, value in enumerate(scores):
+            if value < GRADE_RANGES[grades[i]][0] or value > GRADE_RANGES[grades[i]][1]:
+                player.gave_impossible_score_not_matching_grade = True
+                return "Please make sure that the scores you entered fit to the participants' " \
+                       "grades. Click 'Show grade table' for more information."
 
     @staticmethod
     def vars_for_template(player):
