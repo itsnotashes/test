@@ -230,6 +230,10 @@ class Player(BasePlayer):
     comprehension_check_answer_grade = models.StringField(label="", choices=[
         "A", "B", "C", "D"
     ])
+    received_bonus_crt = models.FloatField(blank=True, initial=0)
+    received_bonus_score_guessing_1 = models.FloatField(blank=True, initial=0)
+    received_bonus_score_guessing_2 = models.FloatField(blank=True, initial=0)
+    received_bonus_score_guessing_3 = models.FloatField(blank=True, initial=0)
 
     for participant in Constants.participant_data:
         exec(f"guessed_score_{participant['Participant rank']} = "
@@ -341,8 +345,12 @@ class ScoreGuessing(Page):
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
         for answer, solution in answer_solution_pairs:
-            if answer == solution:
+            random_nr = random.randint(0, 625)
+            prediction_error = answer - solution
+            if prediction_error ** 2 < random_nr:
                 player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                player.received_bonus_score_guessing_1 += \
+                    player.session.config['possible_bonus_for_each_score_report']
 
 
 class CRT(Page):
@@ -363,10 +371,23 @@ class CRT(Page):
         for answer, key in answer_key_pairs:
             if answer == CORRECT_CRT_SOLUTIONS[key]:
                 player.payoff += player.session.config['possible_bonus_for_each_crt_item']
+                player.received_bonus_crt += \
+                    player.session.config['possible_bonus_for_each_crt_item']
 
 
 class Results(Page):
-    pass
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            show_up_fee=player.session.config['show_up_fee'],
+            bonus_crt=player.received_bonus_crt,
+            bonus_scores_1=player.received_bonus_score_guessing_1,
+            bonus_scores_2=player.received_bonus_score_guessing_2,
+            bonus_scores_3=player.received_bonus_score_guessing_3,
+            sum=player.session.config['show_up_fee'] + player.received_bonus_crt +
+                player.received_bonus_score_guessing_1 + player.received_bonus_score_guessing_2 +
+                player.received_bonus_score_guessing_3
+        )
 
 
 page_sequence = [Consent,

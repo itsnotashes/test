@@ -3,7 +3,29 @@
 {{ endblock }}
 
 {{ block content }}
-    Thank you for your participation.
+    Thank you for your participation. Below you see how much you have earned in each task: <br><br>
+    <table>
+        <tr>
+            <td>Show-up fee:</td><td>{{ show_up_fee }}</td>
+        </tr>
+        <tr>
+            <td>Bonus for short quiz:</td><td>+ {{ bonus_crt }}</td>
+        </tr>
+        <tr>
+            <td>Bonus for reported scores I:</td><td>+ {{ bonus_scores_1 }}</td>
+        </tr>
+        <tr>
+            <td>Bonus for reported scores II:</td><td>+ {{ bonus_scores_2 }}</td>
+        </tr>
+        <tr>
+            <td>Bonus for reported scores III:</td><td>+ {{ bonus_scores_3 }}</td>
+        </tr>
+        <tr>
+            <td><b>Sum:</b></td><td><b>{{ sum }}</b></td>
+        </tr>
+    </table>
+    <br>
+
     {{ next_button }}
 {{ endblock }}
 
