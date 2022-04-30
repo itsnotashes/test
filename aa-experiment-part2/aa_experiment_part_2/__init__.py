@@ -3,12 +3,12 @@ from copy import deepcopy
 from typing import Union
 
 from otree.api import *
-from .modules.csv_reader import csv_to_dicts
+from .modules.csv_reader import read_all_csvs_from_folder
 import itertools
 import random
 
 c = Currency
-CSV_PATH = "_static/aa_experiment_part_2/raven_data.csv"
+CSV_PATH = "_static/aa_experiment_part_2/"
 
 doc = """
 AA experiment
@@ -66,11 +66,16 @@ class Constants(BaseConstants):
     players_per_group = None
     num_rounds = 1
     print("Reading CSV")
-    participant_data = csv_to_dicts(CSV_PATH)
+    participant_data = read_all_csvs_from_folder(CSV_PATH)
 
 
 def creating_session(subsession):
     subsession.session.treatment_iterator = itertools.cycle(TREATMENTS)
+    csv_indizes = []
+    for i in range(len(Constants.participant_data)):
+        for _ in range(len(TREATMENTS)):
+            csv_indizes.append(i)
+    subsession.session.csv_index_iterator = itertools.cycle(csv_indizes)
     subsession.session.nr_participants_in_treatments = dict()
     for treatment in TREATMENTS:
         subsession.session.nr_participants_in_treatments[treatment] = 0
@@ -87,6 +92,11 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     consent_given = models.BooleanField(initial=False)
     treatment = models.StringField(initial="not assigned")
+
+    # Index of Constant.participant_data to avoid having the same data twice for one participant
+    csv_data_index_task_1 = models.IntegerField(blank=True, initial=0)
+    # Task 2 has index csv_data_index_task_1 + 1 and Task 3 accordingly + 2
+
     age = models.IntegerField(min=16, max=150, label="What is your age?")
     biological_sex = models.StringField(label="What is your sex assigned at birth?", choices=[
         "Male",
@@ -235,8 +245,8 @@ class Player(BasePlayer):
     received_bonus_score_guessing_2 = models.FloatField(blank=True, initial=0)
     received_bonus_score_guessing_3 = models.FloatField(blank=True, initial=0)
 
-    for participant in Constants.participant_data:
-        exec(f"guessed_score_{participant['Participant rank']} = "
+    for participant in Constants.participant_data[0]:
+        exec(f"guessed_score_{participant['Participant ID']} = "
              "models.IntegerField(label='', min=0, max=100)")
     del participant  # Necessary to avoid otree complaining that this variable is not stored in the db
 
@@ -251,17 +261,18 @@ class Consent(Page):
             show_up=player.session.config['show_up_fee'],
             max_additional_amount=player.session.config['possible_bonus_for_each_crt_item'] * 5 +
                                   player.session.config['possible_bonus_for_each_score_report'] *
-                                  len(Constants.participant_data),
+                                  len(Constants.participant_data[0]),
             min_payoff=player.session.config['show_up_fee'],
             max_payoff=player.session.config['show_up_fee'] +
                        player.session.config['possible_bonus_for_each_crt_item'] * 5 +
                        player.session.config['possible_bonus_for_each_score_report'] *
-                       len(Constants.participant_data)
+                       len(Constants.participant_data[0])
         )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         i = 0
+        player.csv_data_index_task_1 = next(player.session.csv_index_iterator)
         treatment = next(player.session.treatment_iterator)
         while i < len(TREATMENTS):
             i += 1
@@ -321,27 +332,27 @@ class Introduction(Page):
 
 class ScoreGuessing(Page):
     form_model = "player"
-    form_fields = [f"guessed_score_{participant['Participant rank']}" for participant in
-                   Constants.participant_data]
+    form_fields = [f"guessed_score_{participant['Participant ID']}" for participant in
+                   Constants.participant_data[0]]  # Always the same format and nr of rows
 
     @staticmethod
     def vars_for_template(player):
         # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
-        participants = deepcopy(Constants.participant_data.copy())
+        participants = deepcopy(Constants.participant_data[player.csv_data_index_task_1].copy())
         for i in range(len(participants)):
             participants[i][
-                "formfield_name"] = f"guessed_score_{participants[i]['Participant rank']}"
+                "formfield_name"] = f"guessed_score_{participants[i]['Participant ID']}"
         return dict(
             treatment=player.treatment,
-            keys=Constants.participant_data[0].keys(),
+            keys=Constants.participant_data[player.csv_data_index_task_1][0].keys(),
             participant_data=participants
         )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         answer_solution_pairs = []
-        for participant in Constants.participant_data:
-            answer = eval(f"player.guessed_score_{participant['Participant rank']}")
+        for participant in Constants.participant_data[player.csv_data_index_task_1]:
+            answer = eval(f"player.guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
         for answer, solution in answer_solution_pairs:

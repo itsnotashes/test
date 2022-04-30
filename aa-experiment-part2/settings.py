@@ -22,7 +22,8 @@ SESSION_CONFIG_DEFAULTS = dict(
 
 SESSION_FIELDS = [
     "treatment_iterator",  # Iterator for balancing the treatment groups
-    "nr_participants_in_treatments"  # Dict containing numbers of participants per treatment group
+    "nr_participants_in_treatments",  # Dict containing numbers of participants per treatment group
+    "csv_index_iterator"  # Iterator for using alternating CSV files for different players
 ]
 
 # ISO-639 code
