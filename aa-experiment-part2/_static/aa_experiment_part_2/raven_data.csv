@@ -1,7 +1,7 @@
 Participant ID,Grade,SC/ST Category,Income less than 1 Lakh,Affirmative action status,Score
-ID1,A,Yes,Yes,No,10
-ID2,B,No,No,No,8
-ID3,A,Yes,No,No,9
+ID1,A,Yes,Yes,No,76
+ID2,B,No,No,No,51
+ID3,A,Yes,No,No,76
 ID4,D,No,No,Yes,0
 ID5,D,No,No,Yes,0
 ID6,D,No,No, ,0

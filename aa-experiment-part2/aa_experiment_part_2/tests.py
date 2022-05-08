@@ -6,10 +6,12 @@ NR_PARTICIPANTS_IN_CSV_FILE = 8
 
 class PlayerBot(Bot):
     cases = ["treatment=control", "treatment=caste", "treatment=ews", "invalid input demographics",
-             "invalid input score guessing", "control all bonuses", "control no bonuses"]
+             "invalid input score guessing", "control all bonuses", "control no bonuses",
+             "does not match grade"]
+    # Note: 'No bonuses' has still a small probability that all bonuses are obtained
 
     def play_round(self):
-
+        print(f"{self.case=}")
         yield Submission(Consent, {
             "consent_given": True
         })
@@ -53,34 +55,36 @@ class PlayerBot(Bot):
                 submit = dict()
                 for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
                     if j == i:
-                        submit[f"guessed_score_{j}"] = -1  # invalid percentage
+                        submit[f"guessed_score_ID{j}"] = -1  # invalid percentage
                     else:
-                        submit[f"guessed_score_{j}"] = 50
+                        submit[f"guessed_score_ID{j}"] = 50
                 yield SubmissionMustFail(ScoreGuessing, submit)
 
             for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
                 submit = dict()
                 for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
                     if j == i:
-                        submit[f"guessed_score_{j}"] = 101  # invalid percentage
+                        submit[f"guessed_score_ID{j}"] = 101  # invalid percentage
                     else:
-                        submit[f"guessed_score_{j}"] = 50
+                        submit[f"guessed_score_ID{j}"] = 50
                 yield SubmissionMustFail(ScoreGuessing, submit)
 
         submit = dict()
         if self.case == "control all bonuses":
             for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
-                submit[f"guessed_score_{j}"] = Constants.participant_data[j-1]["Score"]
+                submit[f"guessed_score_ID{j}"] = \
+                    Constants.participant_data[self.player.csv_data_index_task_1][j-1]["Score"]
             yield Submission(ScoreGuessing, submit)
             expect(self.player.payoff,
-                   len(Constants.participant_data) *
+                   len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
         else:
             for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
-                submit[f"guessed_score_{j}"] = int(
-                    Constants.participant_data[j-1]["Score"])+1
+                submit[f"guessed_score_ID{j}"] = int(
+                    Constants.participant_data[self.player.csv_data_index_task_1][j-1]["Score"])+20
             yield Submission(ScoreGuessing, submit)
-            expect(self.player.payoff, 0)
+            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report'])
         if self.case == "control all bonuses":
             yield Submission(CRT, {
                 "crt_1": CORRECT_CRT_SOLUTIONS["crt_1"],
@@ -91,7 +95,7 @@ class PlayerBot(Bot):
             })
             expect(self.player.payoff,
                    5*self.player.session.config['possible_bonus_for_each_crt_item'] +
-                   len(Constants.participant_data) *
+                   len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
         else:
             yield Submission(CRT, {
@@ -101,8 +105,8 @@ class PlayerBot(Bot):
                 "crt_4": 100,
                 "crt_5": 100
             })
-            expect(self.player.payoff,
-                   0)
+            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report'])
 
         if self.case == "invalid input demographics":
             yield SubmissionMustFail(Demographics,
@@ -402,10 +406,12 @@ class PlayerBot(Bot):
         if self.case == "control all bonuses":
             expect(self.player.payoff,
                    5 * self.player.session.config['possible_bonus_for_each_crt_item'] +
-                   len(Constants.participant_data) *
+                   len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'] +
                    self.player.session.config['show_up_fee'])
         else:
-            expect(self.player.payoff, self.player.session.config['show_up_fee'])
-
+            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report'] +
+                   self.player.session.config['show_up_fee'])
+            expect(self.player.payoff, ">=",  self.player.session.config['show_up_fee'])
         yield Results
