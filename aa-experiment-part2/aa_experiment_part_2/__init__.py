@@ -38,7 +38,7 @@ CORRECT_CRT_SOLUTIONS = {
     "crt_2": 23,
     "crt_3": 4,
     "crt_4": 29,
-    "crt_5": 1
+    "crt_5": 4
 }
 
 GRADE_RANGES = {
@@ -242,7 +242,7 @@ class Player(BasePlayer):
     crt_4 = models.IntegerField(label="4. Avinash received both the 15th highest and the 15th "
                                       "lowest mark in the class. How many students are in the "
                                       "class?")
-    crt_5 = models.IntegerField(label="5. A tortoise starts crawling up a 6-foot-high rock wall "
+    crt_5 = models.IntegerField(label="5. A tortoise starts crawling up a 6-yard-high rock wall "
                                       "in the morning. During each day it crawls 3 yards and "
                                       "during the night it slips back 2 yards. How many days will "
                                       "it take the tortoise to reach the top of the wall?")
