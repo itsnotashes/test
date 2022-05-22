@@ -71,17 +71,17 @@ class PlayerBot(Bot):
 
         submit = dict()
         if self.case == "control all bonuses":
-            for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
-                submit[f"guessed_score_ID{j}"] = \
-                    Constants.participant_data[self.player.csv_data_index_task_1][j-1]["Score"]
+            for participant in Constants.participant_data[self.player.csv_data_index_task_1]:
+                submit[f"guessed_score_{participant['Participant ID']}"] = \
+                    participant["Score"]
             yield Submission(ScoreGuessing, submit)
             expect(self.player.payoff,
                    len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
         else:
-            for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE + 1):
-                submit[f"guessed_score_ID{j}"] = int(
-                    Constants.participant_data[self.player.csv_data_index_task_1][j-1]["Score"])+20
+            for participant in Constants.participant_data[self.player.csv_data_index_task_1]:
+                submit[f"guessed_score_{participant['Participant ID']}"] = \
+                    int(participant["Score"])+20
             yield Submission(ScoreGuessing, submit)
             expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])

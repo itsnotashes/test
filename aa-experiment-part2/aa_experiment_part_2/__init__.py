@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Union
 
 from otree.api import *
-from .modules.csv_reader import read_all_csvs_from_folder
+from .modules.csv_reader import read_all_csvs_from_folder, sort_participant_data
 import itertools
 import random
 
@@ -73,7 +73,7 @@ class Constants(BaseConstants):
     players_per_group = None
     num_rounds = 1
     print("Reading CSV")
-    participant_data = read_all_csvs_from_folder(CSV_PATH)
+    participant_data = sort_participant_data(read_all_csvs_from_folder(CSV_PATH))
 
 
 def creating_session(subsession):
