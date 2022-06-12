@@ -281,12 +281,12 @@ class Consent(Page):
         return dict(
             show_up=player.session.config['show_up_fee'],
             max_additional_amount=player.session.config['possible_bonus_for_each_crt_item'] * 5 +
-                                  player.session.config['possible_bonus_for_each_score_report'] *
+                                  3*player.session.config['possible_bonus_for_each_score_report'] *
                                   len(Constants.participant_data[0]),
             min_payoff=player.session.config['show_up_fee'],
             max_payoff=player.session.config['show_up_fee'] +
                        player.session.config['possible_bonus_for_each_crt_item'] * 5 +
-                       player.session.config['possible_bonus_for_each_score_report'] *
+                       3*player.session.config['possible_bonus_for_each_score_report'] *
                        len(Constants.participant_data[0])
         )
 
