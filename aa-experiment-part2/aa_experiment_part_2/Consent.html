@@ -2,23 +2,49 @@
     Consent
 {{ endblock }}
 {{ block content }}
-    This survey is part of a research project from Ashoka University. Your participation in this research study is
-    voluntary. You may choose not to participate. If you decide to participate in this research survey, you may
-    withdraw at any time. You would need to fill an online survey and answer some questions. It will take approximately
-    15 minutes.
-    <br><br>
-    If you complete all the tasks, you will receive a participation fee of INR {{ show_up }} and an additional amount
-    depending on your answers. The maximum additional amount that you can receive is INR {{ max_additional_amount }}.
-    You will earn between INR {{ min_payoff }} and {{ max_payoff }}.
-    <br><br>
-    I understand that all the data collected from my responses will only be used for research and my identity will be
-    kept anonymous.
-    <br>
-    <br>
-    <div style="width:40%; margin: 0 auto;" id="inner">
-        <button style="margin:auto;" class="btn btn-primary" name="consent_given" value="True">Yes</button>
-        <button style="margin:auto;" class="btn btn-secondary" onclick="alert('If you do not want to give your consent, please return this HIT.');">No</button>
+    <script>
+        function showAlert(show) {
+            const mainContents = document.getElementById("main-contents");
+            const alertNoConsent = document.getElementById("alert-no-consent");
+
+            if (show) {
+                mainContents.style.display = "none";
+                alertNoConsent.style.display = "block";
+            } else {
+                mainContents.style.display = "block";
+                alertNoConsent.style.display = "none";
+            }
+        }
+    </script>
+    <div id="main-contents" style="display: block;">
+        This survey is part of a research project from Ashoka University. Your participation in this research study is
+        voluntary. You may choose not to participate. If you decide to participate in this research survey, you may
+        withdraw at any time. You would need to fill an online survey and answer some questions. It will take approximately
+        15 minutes.
+        <br><br>
+        If you complete all the tasks, you will receive a participation fee of INR {{ show_up }} and an additional amount
+        depending on your answers. The maximum additional amount that you can receive is INR {{ max_additional_amount }}.
+        You will earn between INR {{ min_payoff }} and {{ max_payoff }}.
+        <br><br>
+        I understand that all the data collected from my responses will only be used for research and my identity will be
+        kept anonymous.
+        <br>
+        <br>
+        <div style="width:40%; margin: 0 auto;" id="inner">
+            <button style="margin:auto;" class="btn btn-primary" name="consent_given" value="True">Yes</button>
+            <button type="button" style="margin:auto;" class="btn btn-secondary" onclick="showAlert(true);">No</button>
+        </div>
     </div>
 
+    <div id="alert-no-consent" class="card text-white bg-warning mb-3" style="max-width: 80%; display: none;">
+      <div class="card-header">Important</div>
+      <div class="card-body">
+        <h5 class="card-title">You cannot continue without giving your consent</h5>
+        <p class="card-text">If you do not want to give your consent, you cannot participate in this study.
+            Please return this HIT. If you want to give your consent, please click "Back" to return to the previous
+            view.</p>
+          <button type="button" style="margin:auto;" class="btn btn-primary" onclick="showAlert(false);">Back</button>
+      </div>
+    </div>
 
 {{ endblock }}
