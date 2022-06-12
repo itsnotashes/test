@@ -50,41 +50,80 @@ class PlayerBot(Bot):
         else:
             expect(html_aa, "in", self.html)
 
-        if self.case == "invalid input score guessing":
-            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                submit = dict()
-                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                    if j == i:
-                        submit[f"guessed_score_ID{j}"] = -1  # invalid percentage
-                    else:
-                        submit[f"guessed_score_ID{j}"] = 50
-                yield SubmissionMustFail(ScoreGuessing, submit)
+        for nr_page, page in enumerate([ScoreGuessing, ScoreGuessing2, ScoreGuessing3]):
+            if self.case == "invalid input score guessing":
+                for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                    submit = dict()
+                    for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                        if j == i:
+                            submit[f"task_{nr_page+1}_guessed_score_ID{j}"] = -1  # inv. percentage
+                        else:
+                            submit[f"task_{nr_page+1}_guessed_score_ID{j}"] = 50
+                    yield SubmissionMustFail(page, submit)
 
-            for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                submit = dict()
-                for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
-                    if j == i:
-                        submit[f"guessed_score_ID{j}"] = 101  # invalid percentage
-                    else:
-                        submit[f"guessed_score_ID{j}"] = 50
-                yield SubmissionMustFail(ScoreGuessing, submit)
+                for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                    submit = dict()
+                    for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                        if j == i:
+                            submit[f"task_{nr_page+1}_guessed_score_ID{j}"] = 101  # inv. percentage
+                        else:
+                            submit[f"task_{nr_page+1}_guessed_score_ID{j}"] = 50
+                    yield SubmissionMustFail(page, submit)
 
-        submit = dict()
-        if self.case == "control all bonuses":
-            for participant in Constants.participant_data[self.player.csv_data_index_task_1]:
-                submit[f"guessed_score_{participant['Participant ID']}"] = \
-                    participant["Score"]
-            yield Submission(ScoreGuessing, submit)
-            expect(self.player.payoff,
-                   len(Constants.participant_data[0]) *
-                   self.player.session.config['possible_bonus_for_each_score_report'])
-        else:
-            for participant in Constants.participant_data[self.player.csv_data_index_task_1]:
-                submit[f"guessed_score_{participant['Participant ID']}"] = \
-                    int(participant["Score"])+20
-            yield Submission(ScoreGuessing, submit)
-            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
-                   self.player.session.config['possible_bonus_for_each_score_report'])
+            if self.case == "does not match grade":
+                for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                    submit = dict()
+                    for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                        if j == i:
+                            grade = eval("Constants.participant_data["
+                                         f"self.player.csv_data_index_task_{nr_page+1}][i-1]"
+                                         "['Grade']")
+                            score = int(
+                                eval("Constants.participant_data["
+                                     f"self.player.csv_data_index_task_{nr_page + 1}][i-1]"
+                                     "['Score']"))
+                            if grade in ["A", "B"]:
+                                invalid = score - 30
+                            else:
+                                invalid = score + 30
+                            submit[f"task_{nr_page + 1}_guessed_score_ID{j}"] = invalid
+                        else:
+                            submit[f"task_{nr_page + 1}_guessed_score_ID{j}"] = score
+                    yield SubmissionMustFail(page, submit)
+                    expect(self.player.gave_impossible_score_not_matching_grade, True)
+                    expect(
+                        "Please make sure that the scores you entered fit to the participants' "
+                        "grades", "in", self.html)
+            else:
+                expect(self.player.gave_impossible_score_not_matching_grade, False)
+
+            submit = dict()
+            participant_data_for_task = eval("Constants.participant_data["
+                                             f"self.player.csv_data_index_task_{nr_page + 1}]")
+            print(participant_data_for_task)
+            expected_boni = {
+                0: len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report'],
+                1: 2 * len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report'],
+                2: 3 * len(Constants.participant_data[0]) *
+                   self.player.session.config['possible_bonus_for_each_score_report']
+            }
+            if self.case == "control all bonuses":
+                for participant in participant_data_for_task:
+                    submit[f"task_{nr_page + 1}_guessed_score_{participant['Participant ID']}"] = \
+                        participant["Score"]
+                yield Submission(page, submit)
+                bonus_for_task = eval(f"self.player.received_bonus_score_guessing_{nr_page+1}")
+                expect(bonus_for_task, expected_boni[0])
+                expect(self.player.payoff, expected_boni[nr_page])
+            else:
+                for participant in participant_data_for_task:
+                    submit[f"task_{nr_page + 1}_guessed_score_{participant['Participant ID']}"] = \
+                        int(participant["Score"])+20
+                yield Submission(page, submit)
+                expect(self.player.payoff, "<", expected_boni[nr_page])
+
         if self.case == "control all bonuses":
             yield Submission(CRT, {
                 "crt_1": CORRECT_CRT_SOLUTIONS["crt_1"],
@@ -95,7 +134,7 @@ class PlayerBot(Bot):
             })
             expect(self.player.payoff,
                    5*self.player.session.config['possible_bonus_for_each_crt_item'] +
-                   len(Constants.participant_data[0]) *
+                   3*len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
         else:
             yield Submission(CRT, {
@@ -105,7 +144,7 @@ class PlayerBot(Bot):
                 "crt_4": 100,
                 "crt_5": 100
             })
-            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
+            expect(self.player.payoff, "<", 3*len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'])
 
         if self.case == "invalid input demographics":
@@ -406,11 +445,11 @@ class PlayerBot(Bot):
         if self.case == "control all bonuses":
             expect(self.player.payoff,
                    5 * self.player.session.config['possible_bonus_for_each_crt_item'] +
-                   len(Constants.participant_data[0]) *
+                   3*len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'] +
                    self.player.session.config['show_up_fee'])
         else:
-            expect(self.player.payoff, "<", len(Constants.participant_data[0]) *
+            expect(self.player.payoff, "<", 3*len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'] +
                    self.player.session.config['show_up_fee'])
             expect(self.player.payoff, ">=",  self.player.session.config['show_up_fee'])

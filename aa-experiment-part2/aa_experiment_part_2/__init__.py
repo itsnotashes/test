@@ -1,3 +1,4 @@
+import json
 import math
 from copy import deepcopy
 from typing import Union
@@ -73,7 +74,10 @@ class Constants(BaseConstants):
     players_per_group = None
     num_rounds = 1
     print("Reading CSV")
-    participant_data = sort_participant_data(read_all_csvs_from_folder(CSV_PATH))
+    participant_data, csv_names = read_all_csvs_from_folder(CSV_PATH)
+    participant_data = sort_participant_data(participant_data)
+    with open("sorted_participant_data.json", "w") as fw:
+        json.dump(participant_data, fw)
 
 
 def creating_session(subsession):
@@ -102,7 +106,12 @@ class Player(BasePlayer):
 
     # Index of Constant.participant_data to avoid having the same data twice for one participant
     csv_data_index_task_1 = models.IntegerField(blank=True, initial=0)
-    # Task 2 has index csv_data_index_task_1 + 1 and Task 3 accordingly + 2
+    csv_data_index_task_2 = models.IntegerField(blank=True, initial=0)
+    csv_data_index_task_3 = models.IntegerField(blank=True, initial=0)
+
+    csv_name_task_1 = models.StringField(blank=True, initial="Not determined yet")
+    csv_name_task_2 = models.StringField(blank=True, initial="Not determined yet")
+    csv_name_task_3 = models.StringField(blank=True, initial="Not determined yet")
 
     # Record non-attentive score guessers
     gave_impossible_score_not_matching_grade = models.BooleanField(blank=True, initial=False)
@@ -255,10 +264,12 @@ class Player(BasePlayer):
     received_bonus_score_guessing_2 = models.FloatField(blank=True, initial=0)
     received_bonus_score_guessing_3 = models.FloatField(blank=True, initial=0)
 
-    for participant in Constants.participant_data[0]:
-        exec(f"guessed_score_{participant['Participant ID']} = "
-             "models.IntegerField(label='', min=0, max=100)")
-    del participant  # Necessary to avoid otree complaining that this variable is not stored in the db
+    for i in range(1, 3+1):
+        for j in range(1, len(Constants.participant_data[0])+1):
+            exec(f"task_{i}_guessed_score_ID{j} = "
+                 "models.IntegerField(label='', min=0, max=100)")
+    del j  # Necessary to avoid otree complaining that this variable is not stored in the db
+    del i  # Same reason as with j
 
 
 class Consent(Page):
@@ -282,7 +293,23 @@ class Consent(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         i = 0
-        player.csv_data_index_task_1 = next(player.session.csv_index_iterator)
+        index_1 = next(player.session.csv_index_iterator)
+        if index_1+2 < len(Constants.participant_data):
+            index_2 = index_1+1
+            index_3 = index_1+2
+        elif index_1+1 < len(Constants.participant_data):
+            index_2 = index_1+1
+            index_3 = 0
+        else:
+            index_2 = 0
+            index_3 = 1
+
+        player.csv_data_index_task_1 = index_1
+        player.csv_name_task_1 = Constants.csv_names[index_1]
+        player.csv_data_index_task_2 = index_2
+        player.csv_name_task_2 = Constants.csv_names[index_2]
+        player.csv_data_index_task_3 = index_3
+        player.csv_name_task_3 = Constants.csv_names[index_3]
         treatment = next(player.session.treatment_iterator)
         while i < len(TREATMENTS):
             i += 1
@@ -342,16 +369,19 @@ class Introduction(Page):
 
 class ScoreGuessing(Page):
     form_model = "player"
-    form_fields = [f"guessed_score_{participant['Participant ID']}" for participant in
-                   Constants.participant_data[0]]  # Always the same format and nr of rows
+    form_fields = [f"task_1_guessed_score_ID{i}" for i in range(
+        1, len(Constants.participant_data[0])+1
+    )]
 
     @staticmethod
     def error_message(player: Player, values):
         scores = []
+        grades = []
         for form_field in ScoreGuessing.form_fields:
             scores.append(values[form_field])
-        grades = [participant["Grade"] for participant in
-                  Constants.participant_data[player.csv_data_index_task_1]]
+            for participant in Constants.participant_data[player.csv_data_index_task_1]:
+                if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
+                    grades.append(participant["Grade"])
         for i, value in enumerate(scores):
             if value < GRADE_RANGES[grades[i]][0] or value > GRADE_RANGES[grades[i]][1]:
                 player.gave_impossible_score_not_matching_grade = True
@@ -364,7 +394,7 @@ class ScoreGuessing(Page):
         participants = deepcopy(Constants.participant_data[player.csv_data_index_task_1].copy())
         for i in range(len(participants)):
             participants[i][
-                "formfield_name"] = f"guessed_score_{participants[i]['Participant ID']}"
+                "formfield_name"] = f"task_1_guessed_score_{participants[i]['Participant ID']}"
         return dict(
             treatment=player.treatment,
             keys=Constants.participant_data[player.csv_data_index_task_1][0].keys(),
@@ -375,7 +405,7 @@ class ScoreGuessing(Page):
     def before_next_page(player: Player, timeout_happened):
         answer_solution_pairs = []
         for participant in Constants.participant_data[player.csv_data_index_task_1]:
-            answer = eval(f"player.guessed_score_{participant['Participant ID']}")
+            answer = eval(f"player.task_1_guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
         for answer, solution in answer_solution_pairs:
@@ -384,6 +414,106 @@ class ScoreGuessing(Page):
             if prediction_error ** 2 < random_nr:
                 player.payoff += player.session.config['possible_bonus_for_each_score_report']
                 player.received_bonus_score_guessing_1 += \
+                    player.session.config['possible_bonus_for_each_score_report']
+
+
+class ScoreGuessing2(Page):
+    form_model = "player"
+    form_fields = [f"task_2_guessed_score_ID{i}" for i in range(
+        1, len(Constants.participant_data[0])+1
+    )]
+
+    @staticmethod
+    def error_message(player: Player, values):
+        scores = []
+        grades = []
+        for form_field in ScoreGuessing2.form_fields:
+            scores.append(values[form_field])
+            for participant in Constants.participant_data[player.csv_data_index_task_2]:
+                if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
+                    grades.append(participant["Grade"])
+        for i, value in enumerate(scores):
+            if value < GRADE_RANGES[grades[i]][0] or value > GRADE_RANGES[grades[i]][1]:
+                player.gave_impossible_score_not_matching_grade = True
+                return "Please make sure that the scores you entered fit to the participants' " \
+                       "grades. Click 'Show grade table' for more information."
+
+    @staticmethod
+    def vars_for_template(player):
+        # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
+        participants = deepcopy(Constants.participant_data[player.csv_data_index_task_2].copy())
+        for i in range(len(participants)):
+            participants[i][
+                "formfield_name"] = f"task_2_guessed_score_{participants[i]['Participant ID']}"
+        return dict(
+            treatment=player.treatment,
+            keys=Constants.participant_data[player.csv_data_index_task_2][0].keys(),
+            participant_data=participants
+        )
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        answer_solution_pairs = []
+        for participant in Constants.participant_data[player.csv_data_index_task_2]:
+            answer = eval(f"player.task_2_guessed_score_{participant['Participant ID']}")
+            answer_solution_pairs.append((answer, int(participant["Score"])))
+
+        for answer, solution in answer_solution_pairs:
+            random_nr = random.randint(0, 625)
+            prediction_error = answer - solution
+            if prediction_error ** 2 < random_nr:
+                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                player.received_bonus_score_guessing_2 += \
+                    player.session.config['possible_bonus_for_each_score_report']
+
+
+class ScoreGuessing3(Page):
+    form_model = "player"
+    form_fields = [f"task_3_guessed_score_ID{i}" for i in range(
+        1, len(Constants.participant_data[0])+1
+    )]
+
+    @staticmethod
+    def error_message(player: Player, values):
+        scores = []
+        grades = []
+        for form_field in ScoreGuessing3.form_fields:
+            scores.append(values[form_field])
+            for participant in Constants.participant_data[player.csv_data_index_task_3]:
+                if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
+                    grades.append(participant["Grade"])
+        for i, value in enumerate(scores):
+            if value < GRADE_RANGES[grades[i]][0] or value > GRADE_RANGES[grades[i]][1]:
+                player.gave_impossible_score_not_matching_grade = True
+                return "Please make sure that the scores you entered fit to the participants' " \
+                       "grades. Click 'Show grade table' for more information."
+
+    @staticmethod
+    def vars_for_template(player):
+        # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
+        participants = deepcopy(Constants.participant_data[player.csv_data_index_task_3].copy())
+        for i in range(len(participants)):
+            participants[i][
+                "formfield_name"] = f"task_3_guessed_score_{participants[i]['Participant ID']}"
+        return dict(
+            treatment=player.treatment,
+            keys=Constants.participant_data[player.csv_data_index_task_3][0].keys(),
+            participant_data=participants
+        )
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        answer_solution_pairs = []
+        for participant in Constants.participant_data[player.csv_data_index_task_3]:
+            answer = eval(f"player.task_3_guessed_score_{participant['Participant ID']}")
+            answer_solution_pairs.append((answer, int(participant["Score"])))
+
+        for answer, solution in answer_solution_pairs:
+            random_nr = random.randint(0, 625)
+            prediction_error = answer - solution
+            if prediction_error ** 2 < random_nr:
+                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                player.received_bonus_score_guessing_3 += \
                     player.session.config['possible_bonus_for_each_score_report']
 
 
@@ -429,6 +559,8 @@ page_sequence = [Consent,
                  Introduction,
                  # ComprehensionCheck,  # If reactivated, add questions for all treatment groups
                  ScoreGuessing,
+                 ScoreGuessing2,
+                 ScoreGuessing3,
                  CRT,
                  Demographics,
                  Results]

@@ -7,3 +7,6 @@ information about the participants (stored under [aa-experiment-part2/_static/aa
 about them and an introduction depending on the treatment
 * They answer demographic questions and take part in a CRTest as well
 
+## Important notes
+* As participants are sorted randomly within grade per session, the complete participant data in the order presented to
+the study participants is stored in a file `sorted_participant_data.json`.
