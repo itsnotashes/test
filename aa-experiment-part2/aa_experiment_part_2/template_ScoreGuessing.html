@@ -10,6 +10,29 @@
         }
     </style>
 
+    <a id="btn-show-instructions" class="btn btn-secondary" onclick="toggleInstructions();">Show grade table</a>
+    <br><br>
+    <div id="div-instructions" class="card" style="display: none">
+        <table class="grade-table">
+            <tr>
+                <th>Grade</th><th>Range</th>
+            </tr>
+            <tr>
+                <td>A</td><td>75 - 100</td>
+            </tr>
+            <tr>
+                <td>B</td><td>50 - 74</td>
+            </tr>
+            <tr>
+                <td>C</td><td>25 - 49</td>
+            </tr>
+            <tr>
+                <td>D</td><td>0 - 24</td>
+            </tr>
+        </table>
+    </div>
+    <br><br>
+
     <table id="participant-table" class="table">
         <tr>
             {{ for key in keys}}
@@ -40,28 +63,6 @@
             </tr>
         {{ endfor }}
     </table>
-    <br><br>
-    <a id="btn-show-instructions" class="btn btn-secondary" onclick="toggleInstructions();">Show grade table</a>
-    <br><br>
-    <div id="div-instructions" class="card" style="display: none">
-        <table class="grade-table">
-            <tr>
-                <th>Grade</th><th>Range</th>
-            </tr>
-            <tr>
-                <td>A</td><td>75 - 100</td>
-            </tr>
-            <tr>
-                <td>B</td><td>50 - 74</td>
-            </tr>
-            <tr>
-                <td>C</td><td>25 - 49</td>
-            </tr>
-            <tr>
-                <td>D</td><td>0 - 24</td>
-            </tr>
-        </table>
-    </div>
     <br><br>
     {{ next_button }}
 
