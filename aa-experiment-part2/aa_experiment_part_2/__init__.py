@@ -84,8 +84,7 @@ def creating_session(subsession):
     subsession.session.treatment_iterator = itertools.cycle(TREATMENTS)
     csv_indizes = []
     for i in range(len(Constants.participant_data)):
-        for _ in range(len(TREATMENTS)):
-            csv_indizes.append(i)
+        csv_indizes += len(TREATMENTS)*[i]
     subsession.session.csv_index_iterator = itertools.cycle(csv_indizes)
     subsession.session.nr_participants_in_treatments = dict()
     for treatment in TREATMENTS:
