@@ -7,7 +7,8 @@ SESSION_CONFIGS = [
         num_demo_participants=3,
         show_up_fee=100,
         possible_bonus_for_each_score_report=100,
-        possible_bonus_for_each_crt_item=200
+        possible_bonus_for_each_crt_item=200,
+        score_guessing_payoff_mode=1
     ),
 ]
 

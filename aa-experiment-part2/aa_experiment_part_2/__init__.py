@@ -49,6 +49,12 @@ GRADE_RANGES = {
     "D": (0, 24)
 }
 
+LATIN_NR = {
+    1: "I",
+    2: "II",
+    3: "III"
+}
+
 
 def get_grade_for_percentage_correct(percentage_correct: Union[float, int]) -> str:
     """
@@ -112,6 +118,7 @@ class Player(BasePlayer):
     csv_name_task_2 = models.StringField(blank=True, initial="Not determined yet")
     csv_name_task_3 = models.StringField(blank=True, initial="Not determined yet")
 
+    payoff_relevant_score_guessing_tasks = models.StringField(blank=True, initial="")
     # Record non-attentive score guessers
     gave_impossible_score_not_matching_grade = models.BooleanField(blank=True, initial=False)
 
@@ -188,7 +195,6 @@ class Player(BasePlayer):
                                                          "INR 100,000 per year?")
 
     state_of_residence = models.StringField(label="What is your State of residence?",
-                                            # TODO: Change to State / Union territory?
                                             choices=[
                                                 "I do not live in India",
                                                 "Andaman and Nicobar Islands (UT)",
@@ -319,6 +325,8 @@ class Consent(Page):
                 return
             treatment = next(player.session.treatment_iterator)
         player.treatment = treatment
+        if player.session.config["score_guessing_payoff_mode"] == 3:
+            player.payoff_relevant_score_guessing_tasks = "I, II, III"
 
 
 class Start(Page):  # Necessary to allow externally assigning treatments in tests
@@ -336,6 +344,8 @@ class Demographics(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         player.payoff += player.session.config['show_up_fee']
+        print(f"INFO: player earned show_up_fee: '{player.session.config['show_up_fee']}'")
+        print(f"INFO: payoff is now: '{player.payoff}'")
 
 
 class Introduction(Page):
@@ -411,7 +421,11 @@ class ScoreGuessing(Page):
             random_nr = random.randint(0, 625)
             prediction_error = answer - solution
             if prediction_error ** 2 < random_nr:
-                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                if player.session.config["score_guessing_payoff_mode"] == 3:
+                    player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    print("INFO: player earned bonus for task 1: "
+                          f"'{player.session.config['possible_bonus_for_each_score_report']}'")
+                    print(f"INFO: payoff is now: '{player.payoff}'")
                 player.received_bonus_score_guessing_1 += \
                     player.session.config['possible_bonus_for_each_score_report']
 
@@ -461,7 +475,11 @@ class ScoreGuessing2(Page):
             random_nr = random.randint(0, 625)
             prediction_error = answer - solution
             if prediction_error ** 2 < random_nr:
-                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                if player.session.config["score_guessing_payoff_mode"] == 3:
+                    player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    print("INFO: player earned bonus for task 2: "
+                          f"'{player.session.config['possible_bonus_for_each_score_report']}'")
+                    print(f"INFO: payoff is now: '{player.payoff}'")
                 player.received_bonus_score_guessing_2 += \
                     player.session.config['possible_bonus_for_each_score_report']
 
@@ -511,9 +529,24 @@ class ScoreGuessing3(Page):
             random_nr = random.randint(0, 625)
             prediction_error = answer - solution
             if prediction_error ** 2 < random_nr:
-                player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                if player.session.config["score_guessing_payoff_mode"] == 3:
+                    player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    print("INFO: player earned bonus for task 3: "
+                          f"'{player.session.config['possible_bonus_for_each_score_report']}'")
+                    print(f"INFO: payoff is now: '{player.payoff}'")
                 player.received_bonus_score_guessing_3 += \
                     player.session.config['possible_bonus_for_each_score_report']
+        if player.session.config["score_guessing_payoff_mode"] != 3:
+            task_indizes = [1, 2, 3]
+            random.shuffle(task_indizes)
+            for task_nr in task_indizes[:player.session.config["score_guessing_payoff_mode"]]:
+                player.payoff += eval(f"player.received_bonus_score_guessing_{task_nr}")
+                print(f"INFO: player earned randomly selected bonus for task {task_nr}: "
+                      f"'{eval(f'player.received_bonus_score_guessing_{task_nr}')}'")
+                print(f"INFO: payoff is now: '{player.payoff}'")
+                player.payoff_relevant_score_guessing_tasks += f"{LATIN_NR[task_nr]}, "
+            player.payoff_relevant_score_guessing_tasks = \
+                player.payoff_relevant_score_guessing_tasks.strip(", ")
 
 
 class CRT(Page):
@@ -534,6 +567,9 @@ class CRT(Page):
         for answer, key in answer_key_pairs:
             if answer == CORRECT_CRT_SOLUTIONS[key]:
                 player.payoff += player.session.config['possible_bonus_for_each_crt_item']
+                print(f"INFO: player earned CRT bonus: "
+                      f"'{player.session.config['possible_bonus_for_each_crt_item']}'")
+                print(f"INFO: payoff is now: '{player.payoff}'")
                 player.received_bonus_crt += \
                     player.session.config['possible_bonus_for_each_crt_item']
 
@@ -547,9 +583,8 @@ class Results(Page):
             bonus_scores_1=player.received_bonus_score_guessing_1,
             bonus_scores_2=player.received_bonus_score_guessing_2,
             bonus_scores_3=player.received_bonus_score_guessing_3,
-            sum=player.session.config['show_up_fee'] + player.received_bonus_crt +
-                player.received_bonus_score_guessing_1 + player.received_bonus_score_guessing_2 +
-                player.received_bonus_score_guessing_3
+            sum=player.payoff,
+            relevant_boni=player.payoff_relevant_score_guessing_tasks
         )
 
 

@@ -10,3 +10,8 @@ about them and an introduction depending on the treatment
 ## Important notes
 * As participants are sorted randomly within grade per session, the complete participant data in the order presented to
 the study participants is stored in a file `sorted_participant_data.json`.
+* To set the payoff mode for the ScoreGuessing boni, change the value of `score_guessing_payoff_mode` in the session
+  config:
+  * 1: One task is randomly determined to be payoff-relevant
+  * 2: Two tasks are randomly determined to be payoff-relevant
+  * 3: All tasks are payoff-relevant
