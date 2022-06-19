@@ -91,14 +91,14 @@ class PlayerBot(Bot):
                 for i in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
                     submit = dict()
                     for j in range(1, NR_PARTICIPANTS_IN_CSV_FILE+1):
+                        score = int(
+                            eval("Constants.participant_data["
+                                 f"self.player.csv_data_index_task_{nr_page + 1}][i-1]"
+                                 "['Score']"))
                         if j == i:
                             grade = eval("Constants.participant_data["
                                          f"self.player.csv_data_index_task_{nr_page+1}][i-1]"
                                          "['Grade']")
-                            score = int(
-                                eval("Constants.participant_data["
-                                     f"self.player.csv_data_index_task_{nr_page + 1}][i-1]"
-                                     "['Score']"))
                             if grade in ["A", "B"]:
                                 invalid = score - 30
                             else:
