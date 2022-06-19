@@ -315,6 +315,10 @@ class Consent(Page):
         player.csv_name_task_2 = Constants.csv_names[index_2]
         player.csv_data_index_task_3 = index_3
         player.csv_name_task_3 = Constants.csv_names[index_3]
+
+        if player.session.config["score_guessing_payoff_mode"] == 3:
+            player.payoff_relevant_score_guessing_tasks = "I, II, III"
+
         treatment = next(player.session.treatment_iterator)
         while i < len(TREATMENTS):
             i += 1
@@ -324,9 +328,7 @@ class Consent(Page):
                 player.session.nr_participants_in_treatments[treatment] += 1
                 return
             treatment = next(player.session.treatment_iterator)
-        player.treatment = treatment
-        if player.session.config["score_guessing_payoff_mode"] == 3:
-            player.payoff_relevant_score_guessing_tasks = "I, II, III"
+        player.treatment = treatment        
 
 
 class Start(Page):  # Necessary to allow externally assigning treatments in tests
