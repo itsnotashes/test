@@ -133,13 +133,10 @@ class PlayerBot(Bot):
                 yield Submission(page, submit)
                 bonus_for_task = eval(f"self.player.received_bonus_score_guessing_{nr_page+1}")
                 for i in range(1, 3 + 1):
-                    print(f"task {i}")  # TODO: Remove
                     if eval(f"self.player.received_bonus_score_guessing_{i}") > 0:
                         expect(eval(f"self.player.received_bonus_score_guessing_{i}"),
                                expected_boni[0])
                 if self.case in self.cases_with_delayed_payoff_calculation and nr_page < 2:
-                    print(f"case {self.case}")  # TODO: Remove
-                    print(f"payoff_mode {self.player.session.config['score_guessing_payoff_mode']}")  # TODO: Remove
                     expect(bonus_for_task, expected_boni[0])
                     expect(self.player.payoff, 0)
                 elif self.case == "payoff_mode_1":
