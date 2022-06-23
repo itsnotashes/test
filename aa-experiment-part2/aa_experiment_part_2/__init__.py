@@ -268,6 +268,7 @@ class Player(BasePlayer):
     received_bonus_score_guessing_1 = models.FloatField(blank=True, initial=0)
     received_bonus_score_guessing_2 = models.FloatField(blank=True, initial=0)
     received_bonus_score_guessing_3 = models.FloatField(blank=True, initial=0)
+    payoff_relevant_bonus_score_guessing = models.FloatField(blank=True, initial=0)
 
     for i in range(1, 3+1):
         for j in range(1, len(Constants.participant_data[0])+1):
@@ -425,6 +426,8 @@ class ScoreGuessing(Page):
             if prediction_error ** 2 < random_nr:
                 if player.session.config["score_guessing_payoff_mode"] == 3:
                     player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    player.payoff_relevant_bonus_score_guessing += player.session.config[
+                        'possible_bonus_for_each_score_report']
                     print("INFO: player earned bonus for task 1: "
                           f"'{player.session.config['possible_bonus_for_each_score_report']}'")
                     print(f"INFO: payoff is now: '{player.payoff}'")
@@ -479,6 +482,8 @@ class ScoreGuessing2(Page):
             if prediction_error ** 2 < random_nr:
                 if player.session.config["score_guessing_payoff_mode"] == 3:
                     player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    player.payoff_relevant_bonus_score_guessing += player.session.config[
+                        'possible_bonus_for_each_score_report']
                     print("INFO: player earned bonus for task 2: "
                           f"'{player.session.config['possible_bonus_for_each_score_report']}'")
                     print(f"INFO: payoff is now: '{player.payoff}'")
@@ -533,6 +538,7 @@ class ScoreGuessing3(Page):
             if prediction_error ** 2 < random_nr:
                 if player.session.config["score_guessing_payoff_mode"] == 3:
                     player.payoff += player.session.config['possible_bonus_for_each_score_report']
+                    player.payoff_relevant_bonus_score_guessing += player.session.config['possible_bonus_for_each_score_report']
                     print("INFO: player earned bonus for task 3: "
                           f"'{player.session.config['possible_bonus_for_each_score_report']}'")
                     print(f"INFO: payoff is now: '{player.payoff}'")
@@ -543,6 +549,8 @@ class ScoreGuessing3(Page):
             random.shuffle(task_indizes)
             for task_nr in task_indizes[:player.session.config["score_guessing_payoff_mode"]]:
                 player.payoff += eval(f"player.received_bonus_score_guessing_{task_nr}")
+                player.payoff_relevant_bonus_score_guessing += eval(
+                    f"player.received_bonus_score_guessing_{task_nr}")
                 print(f"INFO: player earned randomly selected bonus for task {task_nr}: "
                       f"'{eval(f'player.received_bonus_score_guessing_{task_nr}')}'")
                 print(f"INFO: payoff is now: '{player.payoff}'")
@@ -582,11 +590,9 @@ class Results(Page):
         return dict(
             show_up_fee=player.session.config['show_up_fee'],
             bonus_crt=player.received_bonus_crt,
-            bonus_scores_1=player.received_bonus_score_guessing_1,
-            bonus_scores_2=player.received_bonus_score_guessing_2,
-            bonus_scores_3=player.received_bonus_score_guessing_3,
             sum=player.payoff,
-            relevant_boni=player.payoff_relevant_score_guessing_tasks
+            relevant_boni=player.payoff_relevant_score_guessing_tasks,
+            relevant_boni_amount=player.payoff_relevant_bonus_score_guessing,
         )
 
 
