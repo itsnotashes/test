@@ -5,11 +5,16 @@ NR_PARTICIPANTS_IN_CSV_FILE = 8
 read_important_note = False
 
 class PlayerBot(Bot):
-    # cases = ["treatment=control", "treatment=caste", "treatment=ews", "invalid input demographics",
-    #          "invalid input score guessing", "control all boni", "control no boni",
-    #          "does not match grade"]
 
-    cases = ["payoff_mode_1", "payoff_mode_1 not all boni"]
+    # payoff_mode = 3
+    cases = ["treatment=control", "treatment=caste", "treatment=ews", "invalid input demographics",
+             "invalid input score guessing", "control all boni", "control no boni",
+             "does not match grade"]
+
+    # payoff_mode = 1
+    # cases = ["payoff_mode_1", "payoff_mode_1 not all boni"]
+
+    # payoff_mode = 2
     # cases = ["payoff_mode_2", "payoff_mode_2 not all boni"]
 
 
