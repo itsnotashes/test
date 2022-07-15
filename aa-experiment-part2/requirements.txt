@@ -1,4 +1,5 @@
-otree>=5.0.0
+# oTree-may-not-overwrite-this-file
+otree[mturk]>=5.0.0
 psycopg2>=2.8.4
 pandas
 pytest

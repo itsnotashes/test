@@ -1,0 +1,9 @@
+Participant ID,Grade,Caste,Income less than 1 Lakh,Affirmative action status,Score
+ID1,B,General Category,no,no,67
+ID2,B,General Category,no,no,58
+ID3,B,General Category,yes,yes,58
+ID4,B,SC/ST/OBC,no,yes,58
+ID5,B,SC/ST/OBC,yes,yes,58
+ID6,B,General Category,yes, ,50
+ID7,C,General Category,no, ,42
+ID8,C,SC/ST/OBC,no, ,42

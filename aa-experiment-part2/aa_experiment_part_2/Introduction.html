@@ -48,10 +48,10 @@
     <div>
         <ul>
           <li>
-              You may earn a bonus of {{ bonus }} for each score report you make for the 8 test-takers.
+              You may earn a bonus of USD {{ bonus }} (approx. 35 INR) for each score report you make for the 8 test-takers.
           </li>
           <li>
-              <strong> The likelihood of you receiving the bonus of {{ bonus }} is higher, the closer your reported
+              <strong> The likelihood of you receiving the bonus of USD {{ bonus }} is higher, the closer your reported
                   score is to the true score of a test-taker.</strong>
           </li>
           <li>
@@ -66,6 +66,9 @@
           </li>
         </ul>
     </div>
+        <br><br>
+        <span style="text-decoration: underline">You will be asked to perform this three times. One of the three times will be randomly chosen to determine your monetary earnings from performing this task.</span>
+        <br><br>
 
     <table stlye="width: 100%">
         <tr>
@@ -78,14 +81,14 @@
             <td>
                 <div id="description-payment" style="display: none">
                     After you finished reporting your estimates for all scores, for each of the scores reported
-                    across all 8 test-takes you may earn a bonus of {{ bonus }} as follows:
+                    across all 8 test-takes you may earn a bonus of USD {{ bonus }} as follows:
                     <br><br>
                     1) The computer will randomly select a number between 0 and 625. Every number between 0 and 625
                     is equally likely.
                     <br><br>
                     2) The difference between your reported score estimate and the true score is the so-called
                     prediction error. If your prediction error, multiplied by itself, is not larger than the random
-                    number then you will receive the {{ bonus }} bonus. Otherwise, you will receive no bonus.
+                    number then you will receive the USD {{ bonus }} bonus. Otherwise, you will receive no bonus.
                     <br><br>
                     You may wonder why we have chosen this payment rule. The reason is that this payment rule makes
                     it optimal for you to indicate your true estimates.
@@ -99,7 +102,7 @@
                     Let's suppose you report a score 85 for test-taker 1, while their true score is 80. Thus, your
                     prediction error is (85-80) = 5. Your prediction error, multiplied by itself, is 25. If the
                     random number that is drawn by the computer is greater than or equal to 25, for example 60, then
-                    you will receive the {{ bonus }} bonus. If the random number that is drawn by the computer is
+                    you will receive the USD {{ bonus }} bonus. If the random number that is drawn by the computer is
                     smaller than 25, for example 20, then you will receive no bonus.
                     <br><br>
                     <em>Example 2:</em>
