@@ -36,8 +36,12 @@
     <table id="participant-table" class="table">
         <tr>
             {{ for key in keys}}
-                {{ if treatment != "control" or key != "Affirmative action status" }}
+                {{ if key != "AA income" and key != "AA caste" }}
                     <th>{{ key }}</th>
+                {{ elif treatment == "ews" and key == "AA income" }}
+                    <th>Affirmative action status</th>
+                {{ elif treatment == "caste" and key == "AA caste" }} <!-- otree doesn't seem to support '()' in if -->
+                    <th>Affirmative action status</th>
                 {{ endif }}
             {{ endfor }}
         </tr>
@@ -45,7 +49,7 @@
         {{ for participant in participant_data}}
             <tr>
                 {{ for key in keys}}
-                    {{ if treatment != "control" or key != "Affirmative action status" }}
+                    {{ if key != "AA income" and key != "AA caste" }}
                         <td>
                             {{ for k, v in participant.items }}
                                 {{ if k == key}}
@@ -56,6 +60,22 @@
                                         {{ formfield_errors participant.formfield_name }}
                                     {{ endif }}
                                 {{ endif }}
+                            {{ endfor }}
+                        </td>
+                    {{ elif treatment == "ews" and key == "AA income" }}
+                        <td>
+                            {{ for k, v in participant.items }}
+                                {{ if k == key}}
+                                    {{ v }}
+                                {{ endif }}
+                            {{ endfor }}
+
+                    {{ elif treatment == "caste" and key == "AA caste" }}
+                        <td>
+                            {{ for k, v in participant.items }}
+                                    {{ if k == key}}
+                                        {{ v }}
+                                    {{ endif }}
                             {{ endfor }}
                         </td>
                     {{ endif }}

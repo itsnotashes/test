@@ -10,6 +10,7 @@ import random
 
 c = Currency
 CSV_PATH = "_static/aa_experiment_part_2/"
+# CSV_PATH = "aa_experiment_part_2/tests_modules/data/valid_csvs/"  # Necessary for tests
 
 doc = """
 AA experiment
@@ -260,7 +261,8 @@ class Player(BasePlayer):
                                       "in the morning. During each day it crawls 3 yards and "
                                       "during the night it slips back 2 yards. How many days will "
                                       "it take the tortoise to reach the top of the wall?")
-    percentage_correct = models.IntegerField(initial=random.randint(0, 100))
+    # For ComprehensionCheck:
+    # percentage_correct = models.IntegerField(initial=random.randint(0, 100))
     comprehension_check_answer_grade = models.StringField(label="", choices=[
         "A", "B", "C", "D"
     ])

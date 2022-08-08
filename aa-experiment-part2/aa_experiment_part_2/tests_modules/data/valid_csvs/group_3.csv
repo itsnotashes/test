@@ -1,0 +1,9 @@
+Participant ID,Grade,Caste,Income less than 1 Lakh,AA income,AA caste,Score
+ID1,B,General Category,no,no,yes,51
+ID2,B,General Category,no,no,yes,52
+ID3,B,General Category,yes,yes,no,50
+ID4,B,SC/ST/OBC,no,yes,no,51
+ID5,B,SC/ST/OBC,yes,yes,no,52
+ID6,B,General Category,yes,no,yes,50
+ID7,C,General Category,no,no,yes,25
+ID8,D,SC/ST/OBC,no,no,yes,1

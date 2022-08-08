@@ -7,18 +7,15 @@ read_important_note = False
 class PlayerBot(Bot):
 
     # payoff_mode = 3
-    cases = ["treatment=control", "treatment=caste", "treatment=ews", "invalid input demographics",
-             "invalid input score guessing", "control all boni", "control no boni",
-             "does not match grade"]
-
-    # payoff_mode = 1
-    # cases = ["payoff_mode_1", "payoff_mode_1 not all boni"]
+    # cases = ["treatment=control", "treatment=caste", "treatment=ews", "invalid input demographics",
+    #          "invalid input score guessing", "control all boni", "control no boni",
+    #          "does not match grade"]
 
     # payoff_mode = 2
     # cases = ["payoff_mode_2", "payoff_mode_2 not all boni"]
 
-
-
+    # payoff_mode = 1
+    cases = ["payoff_mode_1", "payoff_mode_1 not all boni"]
 
     cases_with_delayed_payoff_calculation = ["payoff_mode_2", "payoff_mode_1"]
     cases_with_control_treatment = ["treatment=control", "control all boni",
@@ -33,6 +30,9 @@ class PlayerBot(Bot):
                   "being overwritten, you need to set the payoff mode to subsequently 1, 2 and 3"
                   " and activate / deactivate the corresponding test cases to avoid false "
                   "positives and to cover all test cases.\nPress Enter to continue...")
+            input("ALSO IMPORTANT: The tests expect the CSV files under "
+                  "tests_modules/data/valid_csvs/ to be used, so uncomment the corresponding line"
+                  " in '__init__.py' before starting the tests.")
             read_important_note = True
         print(f"{self.case=}")
         print(f"Using payoff mode '{self.player.session.config['score_guessing_payoff_mode']}'")
@@ -122,7 +122,6 @@ class PlayerBot(Bot):
             submit = dict()
             participant_data_for_task = eval("Constants.participant_data["
                                              f"self.player.csv_data_index_task_{nr_page + 1}]")
-            print(participant_data_for_task)
             expected_boni = {
                 0: len(Constants.participant_data[0]) *
                    self.player.session.config['possible_bonus_for_each_score_report'],
