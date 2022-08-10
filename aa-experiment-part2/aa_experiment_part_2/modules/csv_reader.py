@@ -6,7 +6,7 @@ import random
 from copy import deepcopy
 
 import pandas as pd
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 
 def csv_to_dicts(csv_path: str) -> List[Dict[str, str]]:
@@ -71,23 +71,49 @@ def read_all_csvs_from_folder(
     return list_of_csv_values, csv_file_names
 
 
-def sort_participant_data(participant_data: List[List[Dict[str, str]]]) \
-        -> List[List[Dict[str, str]]]:
+def sort_participant_data(participant_data: List[List[Dict[str, str]]],
+                          relevant_aa_key: Optional[str] = None) -> List[List[Dict[str, str]]]:
     """
-    Sort participants dicts in given participant data according to their grade, but randomly within
+    Sort participants dicts in given participant data according to the following excerpt from the
+    instructions: '3 of the 5 are the top scorers in the group of 8. The remaining 2 seats are
+    reserved for the best performing SC candidates [/ EWS candidates]'.
+
+    The other 3 participants not in the top-five are sorted by their grade, but randomly within
     a grade. This sorting is performed for all lists, each corresponding to a single CSV file
 
     :param participant_data: List of lists, each of which contains the participant data from one
                              CSV file
+    :param relevant_aa_key: AA key for the relevant treatment (None if control) to sort the
+                            participants accordingly
     :return: participant data sorted by grade, and randomly within grade
 
     >>> part_data = [[{"Grade": "B"}, {"Grade": "A"}], [{"Grade": "C"}, {"Grade": "D"}]]
     >>> sort_participant_data(part_data)
     [[{'Grade': 'A'}, {'Grade': 'B'}], [{'Grade': 'C'}, {'Grade': 'D'}]]
     """
-    sorted_participant_data = []
+    sorted_participant_data = []  # Containing as many lists as CSV files are used
     for part_data in participant_data:
         part_data = deepcopy(part_data)
-        sorted_participant_data.append(
-            sorted(part_data, key=lambda participant: (participant["Grade"], random.random())))
+        top_five = []  # 3 best scorers and 2 best AA scorers
+        participants_sorted_by_score = sorted(
+            part_data, key=lambda participant: (participant["Score"], random.random()),
+            reverse=True)
+        if relevant_aa_key is not None:
+            aa_participants_sorted_by_score = list(filter(
+                lambda p: p[relevant_aa_key] == "yes", participants_sorted_by_score
+            ))
+        else:
+            aa_participants_sorted_by_score = participants_sorted_by_score
+
+        top_five += aa_participants_sorted_by_score[:2]
+        for p in participants_sorted_by_score:
+            if p not in top_five and len(top_five) < 5:
+                top_five.append(p)
+        assert len(top_five) == 5
+        sorted_csv_data = []
+        sorted_csv_data += top_five
+        for p in sorted(part_data, key=lambda participant: (participant["Grade"], random.random())):
+            if p not in sorted_csv_data:
+                sorted_csv_data.append(p)
+        sorted_participant_data.append(sorted_csv_data)
     return sorted_participant_data
