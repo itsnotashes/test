@@ -82,14 +82,20 @@ class Constants(BaseConstants):
     num_rounds = 1
     print("Reading CSV")
     participant_data, csv_names = read_all_csvs_from_folder(CSV_PATH)
+    print("CSV read order:", csv_names)
     participant_data_for_treatment = dict()
-    participant_data_for_treatment[TREATMENTS[0]] = sort_participant_data(participant_data)
-    participant_data_for_treatment[TREATMENTS[1]] = sort_participant_data(participant_data,
-                                                                          "AA caste")
-    participant_data_for_treatment[TREATMENTS[2]] = sort_participant_data(participant_data,
-                                                                          "AA income")
-    with open("sorted_participant_data.json", "w") as fw:
-        json.dump(participant_data_for_treatment, fw)
+    # participant_data_for_treatment[TREATMENTS[0]] = sort_participant_data(participant_data)
+    # participant_data_for_treatment[TREATMENTS[1]] = sort_participant_data(participant_data,
+    #                                                                       "AA caste")
+    # participant_data_for_treatment[TREATMENTS[2]] = sort_participant_data(participant_data,
+    #                                                               "AA income")
+
+    # with open("sorted_participant_data.json", "w") as fw:
+    #     json.dump(participant_data_for_treatment, fw)
+        # json.dump(participant_data, fw)
+    
+    with open("unsorted_part_data.json", "w") as fx:
+        json.dump(participant_data, fx)
 
 
 def creating_session(subsession):
@@ -386,7 +392,7 @@ class Introduction(Page):
 #             return "Wrong grade selected"
 
 
-class ScoreGuessing(Page):
+class ScoreGuessing(Page): # task 1 page
     form_model = "player"
     form_fields = [f"task_1_guessed_score_ID{i}" for i in range(
         1, len(Constants.participant_data[0])+1
@@ -398,8 +404,9 @@ class ScoreGuessing(Page):
         grades = []
         for form_field in ScoreGuessing.form_fields:
             scores.append(values[form_field])
-            for participant in Constants.participant_data_for_treatment[
-                    player.treatment][player.csv_data_index_task_1]:
+            # for participant in Constants.participant_data_for_treatment[
+            #         player.treatment][player.csv_data_index_task_1]:
+            for participant in Constants.participant_data[0]:
                 if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
                     grades.append(participant["Grade"])
         for i, value in enumerate(scores):
@@ -411,23 +418,28 @@ class ScoreGuessing(Page):
     @staticmethod
     def vars_for_template(player):
         # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
-        participants = deepcopy(Constants.participant_data_for_treatment[
-                                    player.treatment][player.csv_data_index_task_1].copy())
+        # participants = deepcopy(Constants.participant_data_for_treatment[
+        #                             player.treatment][player.csv_data_index_task_1].copy())
+        participants = deepcopy(Constants.participant_data[0].copy())
+        # print(participants)
         for i in range(len(participants)):
             participants[i][
                 "formfield_name"] = f"task_1_guessed_score_{participants[i]['Participant ID']}"
+        print("Grades:", [x['Grade'] for x in participants])
         return dict(
             treatment=player.treatment,
-            keys=Constants.participant_data_for_treatment[player.treatment][
-                player.csv_data_index_task_1][0].keys(),
+            # keys=Constants.participant_data_for_treatment[player.treatment][
+            #     player.csv_data_index_task_1][0].keys(),
+            keys=Constants.participant_data[0][0].keys(),
             participant_data=participants
         )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         answer_solution_pairs = []
-        for participant in Constants.participant_data_for_treatment[player.treatment][
-                player.csv_data_index_task_1]:
+        # for participant in Constants.participant_data_for_treatment[player.treatment][
+        #         player.csv_data_index_task_1]:
+        for participant in Constants.participant_data[0]: 
             answer = eval(f"player.task_1_guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
@@ -449,7 +461,7 @@ class ScoreGuessing(Page):
 class ScoreGuessing2(Page):
     form_model = "player"
     form_fields = [f"task_2_guessed_score_ID{i}" for i in range(
-        1, len(Constants.participant_data[0])+1
+        1, len(Constants.participant_data[1])+1
     )]
 
     @staticmethod
@@ -458,8 +470,9 @@ class ScoreGuessing2(Page):
         grades = []
         for form_field in ScoreGuessing2.form_fields:
             scores.append(values[form_field])
-            for participant in Constants.participant_data_for_treatment[player.treatment][
-                    player.csv_data_index_task_2]:
+            # for participant in Constants.participant_data_for_treatment[player.treatment][
+            #         player.csv_data_index_task_2]:
+            for participant in Constants.participant_data[1]:
                 if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
                     grades.append(participant["Grade"])
         for i, value in enumerate(scores):
@@ -471,23 +484,35 @@ class ScoreGuessing2(Page):
     @staticmethod
     def vars_for_template(player):
         # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
-        participants = deepcopy(Constants.participant_data_for_treatment[player.treatment][
-                                    player.csv_data_index_task_2].copy())
+        # participants = deepcopy(Constants.participant_data_for_treatment[player.treatment][
+        #                             player.csv_data_index_task_2].copy())
+        # for i in range(len(participants)):
+        #     participants[i][
+        #         "formfield_name"] = f"task_2_guessed_score_{participants[i]['Participant ID']}"
+        # return dict(
+        #     treatment=player.treatment,
+        #     keys=Constants.participant_data_for_treatment[player.treatment][
+        #             player.csv_data_index_task_2][0].keys(),
+        #     participant_data=participants
+        # )
+        participants = deepcopy(Constants.participant_data[1].copy())
+        # print(participants)
         for i in range(len(participants)):
             participants[i][
                 "formfield_name"] = f"task_2_guessed_score_{participants[i]['Participant ID']}"
+        print("Grades:", [x['Grade'] for x in participants])
         return dict(
             treatment=player.treatment,
-            keys=Constants.participant_data_for_treatment[player.treatment][
-                    player.csv_data_index_task_2][0].keys(),
+            keys=Constants.participant_data[1][0].keys(),
             participant_data=participants
         )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         answer_solution_pairs = []
-        for participant in Constants.participant_data_for_treatment[player.treatment][
-                player.csv_data_index_task_2]:
+        # for participant in Constants.participant_data_for_treatment[player.treatment][
+        #         player.csv_data_index_task_2]:
+        for participant in Constants.participant_data[1]:
             answer = eval(f"player.task_2_guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
@@ -509,7 +534,7 @@ class ScoreGuessing2(Page):
 class ScoreGuessing3(Page):
     form_model = "player"
     form_fields = [f"task_3_guessed_score_ID{i}" for i in range(
-        1, len(Constants.participant_data[0])+1
+        1, len(Constants.participant_data[2])+1
     )]
 
     @staticmethod
@@ -518,8 +543,9 @@ class ScoreGuessing3(Page):
         grades = []
         for form_field in ScoreGuessing3.form_fields:
             scores.append(values[form_field])
-            for participant in Constants.participant_data_for_treatment[player.treatment][
-                    player.csv_data_index_task_3]:
+            # for participant in Constants.participant_data_for_treatment[player.treatment][
+            #         player.csv_data_index_task_3]:
+            for participant in Constants.participant_data[2]:
                 if participant["Participant ID"].split("ID")[-1] == form_field.split("ID")[-1]:
                     grades.append(participant["Grade"])
         for i, value in enumerate(scores):
@@ -530,24 +556,35 @@ class ScoreGuessing3(Page):
 
     @staticmethod
     def vars_for_template(player):
-        # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
-        participants = deepcopy(Constants.participant_data_for_treatment[player.treatment][
-                                    player.csv_data_index_task_3].copy())
+        # # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
+        # participants = deepcopy(Constants.participant_data_for_treatment[player.treatment][
+        #                             player.csv_data_index_task_3].copy())
+        # for i in range(len(participants)):
+        #     participants[i][
+        #         "formfield_name"] = f"task_3_guessed_score_{participants[i]['Participant ID']}"
+        # return dict(
+        #     treatment=player.treatment,
+        #     keys=Constants.participant_data_for_treatment[player.treatment][
+        #             player.csv_data_index_task_3][0].keys(),
+        #     participant_data=participants
+        # )
+        participants = deepcopy(Constants.participant_data[2].copy())
         for i in range(len(participants)):
             participants[i][
                 "formfield_name"] = f"task_3_guessed_score_{participants[i]['Participant ID']}"
+        print("Grades:", [x['Grade'] for x in participants])
         return dict(
             treatment=player.treatment,
-            keys=Constants.participant_data_for_treatment[player.treatment][
-                    player.csv_data_index_task_3][0].keys(),
+            keys=Constants.participant_data[2][0].keys(),
             participant_data=participants
         )
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         answer_solution_pairs = []
-        for participant in Constants.participant_data_for_treatment[player.treatment][
-                player.csv_data_index_task_3]:
+        # for participant in Constants.participant_data_for_treatment[player.treatment][
+        #         player.csv_data_index_task_3]:
+        for participant in Constants.participant_data[2]:
             answer = eval(f"player.task_3_guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 

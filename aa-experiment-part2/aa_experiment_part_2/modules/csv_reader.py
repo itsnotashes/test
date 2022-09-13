@@ -68,6 +68,7 @@ def read_all_csvs_from_folder(
     list_of_csv_values = []
     for csv_name in csv_file_names:
         list_of_csv_values.append(csv_to_dicts(parent_directory_path.strip(os.sep)+os.sep+csv_name))
+
     return list_of_csv_values, csv_file_names
 
 
