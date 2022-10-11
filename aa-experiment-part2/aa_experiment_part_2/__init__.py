@@ -35,6 +35,31 @@ OCCUPATION_CHOICES = [[1, 'cultivation own land'],
                            'etc.)'],
                       [-1, 'Others, specify']]
 
+WORD_CHOICES = [[1, 'Candidate'],
+                [2, 'Test'],
+                [3, 'Scores']]
+
+QUIZ_1_B = [[1, 'The 5 candidates have been selected randomly within a pool of 8 candidates'],
+            [2, 'The 5 selected candidates are the top performers in the group of 8']]
+
+QUIZ_1_C = [[1, 'The 5 candidates have been selected randomly within a pool of 8 candidates'],
+            [2, '3 of the 5 are the top performers in the group of 8. The remaining'
+                ' 2 selected are the best performing SC/ST/OBC candidates.']]
+
+QUIZ_1_I = [[1, 'The 5 candidates have been selected randomly within a pool of 8 candidates'],
+            [2, '3 of the 5 are the top performers in the group of 8. The remaining'
+                ' 2 selected are the best performing with annual income less than 1 Lakh.']]
+
+QUIZ_2 = [[1, 'I won’t get paid specifically for this task,'
+              ' I will get a fixed amount for my participation in the experiment'],
+          [2,'I will receive 5 rupees per correct guess'],
+          [3,'The probability to receive 5 rupees increases with how close I am to the true score']]
+
+CORRECT_QUIZ_SOLUTIONS = {
+    "quiz1": 2,
+    "quiz2": 3
+}
+
 CORRECT_CRT_SOLUTIONS = {
     "crt_1": 2,
     "crt_2": 23,
@@ -57,23 +82,23 @@ LATIN_NR = {
 }
 
 
-def get_grade_for_percentage_correct(percentage_correct: Union[float, int]) -> str:
-    """
-    Get the grade for a participant who answered 'percentage_correct' % of all questions
-    correctly
-
-    :param percentage_correct: The percentage of questions correctly answered
-    :return: Grade, i.e. 'A', 'B', 'C', or 'D'
-    """
-    if percentage_correct > 100 or percentage_correct < 0:
-        raise ValueError("'percentage_correct' needs to be in the range from 0 to 100")
-    if percentage_correct >= 75:
-        return "A"
-    if percentage_correct >= 50:
-        return "B"
-    if percentage_correct >= 25:
-        return "C"
-    return "D"
+# def get_grade_for_percentage_correct(percentage_correct: Union[float, int]) -> str:
+#     """
+#     Get the grade for a participant who answered 'percentage_correct' % of all questions
+#     correctly
+#
+#     :param percentage_correct: The percentage of questions correctly answered
+#     :return: Grade, i.e. 'A', 'B', 'C', or 'D'
+#     """
+#     if percentage_correct > 100 or percentage_correct < 0:
+#         raise ValueError("'percentage_correct' needs to be in the range from 0 to 100")
+#     if percentage_correct >= 75:
+#         return "A"
+#     if percentage_correct >= 50:
+#         return "B"
+#     if percentage_correct >= 25:
+#         return "C"
+#     return "D"
 
 
 class Constants(BaseConstants):
@@ -121,6 +146,10 @@ class Player(BasePlayer):
     consent_given = models.BooleanField(initial=False)
     treatment = models.StringField(initial="not assigned")
 
+    att_1 = models.IntegerField(label="Some people like the colour red."
+                                      " Some people like the colour blue. What is the sum of 12 and 14?")
+    att_2 = models.IntegerField(label="How many times have you had a fatal heart attack? ")
+
     # Index of Constant.participant_data to avoid having the same data twice for one participant
     csv_data_index_task_1 = models.IntegerField(blank=True, initial=0)
     csv_data_index_task_2 = models.IntegerField(blank=True, initial=0)
@@ -133,6 +162,21 @@ class Player(BasePlayer):
     payoff_relevant_score_guessing_tasks = models.StringField(blank=True, initial="")
     # Record non-attentive score guessers
     gave_impossible_score_not_matching_grade = models.BooleanField(blank=True, initial=False)
+
+    quiz_1b = models.IntegerField(label="How were the 5 candidates selected?",
+                                  choices=QUIZ_1_B,
+                                  widget=widgets.RadioSelect)
+    quiz_1c = models.IntegerField(label="How were the 5 candidates selected?",
+                                  choices=QUIZ_1_C,
+                                  widget=widgets.RadioSelect)
+
+    quiz_1i = models.IntegerField(label="How were the 5 candidates selected?",
+                                  choices=QUIZ_1_I,
+                                  widget=widgets.RadioSelect)
+    quiz_2 = models.IntegerField(label="How is your payment going to be calculated for the next task?"
+                                       " (select the correct answer)",
+                                 choices=QUIZ_2,
+                                 widget=widgets.RadioSelect)
 
     age = models.IntegerField(min=16, max=150, label="What is your age?")
     biological_sex = models.StringField(label="What is your sex assigned at birth?", choices=[
@@ -171,6 +215,10 @@ class Player(BasePlayer):
     ])
 
     household_size = models.IntegerField(min=0, label="How many people live in your households?")
+
+    word_e = models.IntegerField(label="Select the word that ends with an `e'",
+                                 choices=WORD_CHOICES,
+                                 widget=widgets.RadioSelect)
 
     years_of_education = models.IntegerField(min=0, label="How many years of education have you "
                                                           "completed?")
@@ -346,13 +394,15 @@ class Consent(Page):
 
 
 class Start(Page):  # Necessary to allow externally assigning treatments in tests
+    form_model = "player"
+    form_fields = ["att_1"]
     pass
 
 
 class Demographics(Page):
     form_model = "player"
     form_fields = ["age", "biological_sex", "gender", "religion", "jati", "school", "caste",
-                   "household_size", "years_of_education", "occupation_father",
+                   "household_size", "word_e", "years_of_education", "occupation_father",
                    "occupation_father_other", "occupation_mother", "occupation_mother_other",
                    "fathers_education", "mothers_education", "income_less_than_100_000",
                    "state_of_residence", "living_area"]
@@ -365,6 +415,9 @@ class Demographics(Page):
 
 
 class Introduction(Page):
+    form_model = "player"
+    form_fields = ["att_2"]
+
     @staticmethod
     def vars_for_template(player):
         return dict(
@@ -373,23 +426,100 @@ class Introduction(Page):
         )
 
 
-# class ComprehensionCheck(Page):
-#     form_model = "player"
-#     form_fields = ["comprehension_check_answer_grade"]
-#
-#     @staticmethod
-#     def vars_for_template(player):
-#         return dict(
-#             treatment=player.treatment,
-#             bonus=player.session.config['possible_bonus_for_each_score_report'],
-#             percentage=player.percentage_correct
-#         )
-#
-#     @staticmethod
-#     def error_message(player, values):
-#         if values["comprehension_check_answer_grade"] != \
-#                 get_grade_for_percentage_correct(player.percentage_correct):
-#             return "Wrong grade selected"
+class ComprehensionCheckB(Page):
+    form_model = "player"
+    form_fields = ["quiz_1b", "quiz_2"]
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
+
+    @staticmethod
+    def is_displayed(player):
+        return player.treatment == 'control'
+
+    @staticmethod
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1b=2,
+            quiz_2=3,
+        )
+
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
+
+
+class ComprehensionCheckC(Page):
+    form_model = "player"
+    form_fields = ["quiz_1c", "quiz_2"]
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
+
+    @staticmethod
+    def is_displayed(player):
+        return player.treatment == 'caste'
+
+    @staticmethod
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1c=2,
+            quiz_2=3,
+        )
+
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
+
+
+class ComprehensionCheckI(Page):
+    form_model = "player"
+    form_fields = ["quiz_1i", "quiz_2"]
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
+
+    @staticmethod
+    def is_displayed(player):
+        return player.treatment == 'ews'
+
+    @staticmethod
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1i=2,
+            quiz_2=3,
+        )
+
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
 
 
 class ScoreGuessing(Page): # task 1 page
@@ -655,7 +785,9 @@ class Results(Page):
 page_sequence = [Consent,
                  Start,
                  Introduction,
-                 # ComprehensionCheck,  # If reactivated, add questions for all treatment groups
+                 ComprehensionCheckB,
+                 ComprehensionCheckC,
+                 ComprehensionCheckI,
                  ScoreGuessing,
                  ScoreGuessing2,
                  ScoreGuessing3,
