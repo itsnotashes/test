@@ -52,8 +52,8 @@ QUIZ_1_I = [[1, 'The 5 candidates have been selected randomly within a pool of 8
 
 QUIZ_2 = [[1, 'I won’t get paid specifically for this task,'
               ' I will get a fixed amount for my participation in the experiment'],
-          [2, 'I will receive 5 rupees per correct guess'],
-          [3, 'The probability to receive 5 rupees increases with how close I am to the true score']]
+          [2,'I will receive 5 rupees per correct guess'],
+          [3,'The probability to receive 5 rupees increases with how close I am to the true score']]
 
 CORRECT_QUIZ_SOLUTIONS = {
     "quiz1": 2,
@@ -109,7 +109,6 @@ class Constants(BaseConstants):
     participant_data, csv_names = read_all_csvs_from_folder(CSV_PATH)
     print("CSV read order:", csv_names)
     participant_data_for_treatment = dict()
-    # FORM_TEMPLATE = __name__ + '/form.html'
     # participant_data_for_treatment[TREATMENTS[0]] = sort_participant_data(participant_data)
     # participant_data_for_treatment[TREATMENTS[1]] = sort_participant_data(participant_data,
     #                                                                       "AA caste")
@@ -118,8 +117,8 @@ class Constants(BaseConstants):
 
     # with open("sorted_participant_data.json", "w") as fw:
     #     json.dump(participant_data_for_treatment, fw)
-    # json.dump(participant_data, fw)
-
+        # json.dump(participant_data, fw)
+    
     with open("unsorted_part_data.json", "w") as fx:
         json.dump(participant_data, fx)
 
@@ -128,62 +127,11 @@ def creating_session(subsession):
     subsession.session.treatment_iterator = itertools.cycle(TREATMENTS)
     csv_indizes = []
     for i in range(len(Constants.participant_data)):
-        csv_indizes += len(TREATMENTS) * [i]
+        csv_indizes += len(TREATMENTS)*[i]
     subsession.session.csv_index_iterator = itertools.cycle(csv_indizes)
     subsession.session.nr_participants_in_treatments = dict()
     for treatment in TREATMENTS:
         subsession.session.nr_participants_in_treatments[treatment] = 0
-
-
-def get_quiz_data_b():
-    return [
-        dict(
-            name='quiz_1b',
-            solution=2,
-            explanation="The top 5 performers are chosen from the 8 test takers.",
-        ),
-        dict(
-            name='quiz_2',
-            solution=3,
-            explanation="The closer your guess is to the correct score, the higher is the "
-                        "probability that you will receive the bonus.",
-        ),
-    ]
-
-
-def get_quiz_data_c():
-    return [
-        dict(
-            name='quiz_1c',
-            solution=2,
-            explanation="3 of the 5 are the top scorers in the group of the 8 test takers."
-                        " The remaining 2 seats are reserved for the best performing SC/ST/OBC candidates.",
-        ),
-        dict(
-            name='quiz_2',
-            solution=3,
-            explanation="The closer your guess is to the correct score, the higher is the "
-                        "probability that you will receive the bonus.",
-        ),
-    ]
-
-
-def get_quiz_data_i():
-    return [
-        dict(
-            name='quiz_1i',
-            solution=2,
-            explanation="3 of the 5 are the top scorers in the group of the 8 test takers."
-                        " The remaining 2 seats are reserved for the best performing candidates "
-                        "with annual income less than 1 Lakh.",
-        ),
-        dict(
-            name='quiz_2',
-            solution=3,
-            explanation="The closer your guess is to the correct score, the higher is the "
-                        "probability that you will receive the bonus.",
-        ),
-    ]
 
 
 class Subsession(BaseSubsession):
@@ -372,40 +320,6 @@ class Player(BasePlayer):
                                       "in the morning. During each day it crawls 3 yards and "
                                       "during the night it slips back 2 yards. How many days will "
                                       "it take the tortoise to reach the top of the wall?")
-
-    aa_criterion = models.StringField(label="What was the criterion on the basis of which "
-                                            "affirmative action was provided in the tasks "
-                                            "presented to you?", choices=[
-        "Caste",
-        "Income",
-        "No affirmative action"
-    ])
-
-    aa_criterion_sc = models.StringField(label="What was the criterion on the basis of which"
-                                               " SC/ST/OBC candidates were provided "
-                                               "affirmative action?", choices=[
-        "Caste",
-        "Income",
-        "No affirmative action"
-    ])
-
-    information_suff = models.LongStringField(label="Did you get sufficient information on "
-                                                    "the candidates for you to make your decision on their "
-                                                    "scores? Please comment.")
-
-    instructions_clear = models.StringField(label="Were the instructions clear or confusing?", choices=[
-        "Clear",
-        "Confusing"
-    ])
-
-    goal_clear = models.StringField(label="Was the goal of the experiment obvious?"
-                                          "(it should not have been)", choices=[
-        "Yes",
-        "No"
-    ])
-
-    other_comm = models.LongStringField(label="Any other comments/suggestions:")
-
     # For ComprehensionCheck:
     # percentage_correct = models.IntegerField(initial=random.randint(0, 100))
     comprehension_check_answer_grade = models.StringField(label="", choices=[
@@ -417,8 +331,8 @@ class Player(BasePlayer):
     received_bonus_score_guessing_3 = models.FloatField(blank=True, initial=0)
     payoff_relevant_bonus_score_guessing = models.FloatField(blank=True, initial=0)
 
-    for i in range(1, 3 + 1):
-        for j in range(1, len(Constants.participant_data[0]) + 1):
+    for i in range(1, 3+1):
+        for j in range(1, len(Constants.participant_data[0])+1):
             exec(f"task_{i}_guessed_score_ID{j} = "
                  "models.IntegerField(label='', min=0, max=100)")
     del j  # Necessary to avoid otree complaining that this variable is not stored in the db
@@ -434,12 +348,12 @@ class Consent(Page):
         return dict(
             show_up=player.session.config['show_up_fee'],
             max_additional_amount=player.session.config['possible_bonus_for_each_crt_item'] * 5 +
-                                  1 * player.session.config['possible_bonus_for_each_score_report'] *
+                                  1*player.session.config['possible_bonus_for_each_score_report'] *
                                   len(Constants.participant_data[0]),
             min_payoff=player.session.config['show_up_fee'],
             max_payoff=player.session.config['show_up_fee'] +
                        player.session.config['possible_bonus_for_each_crt_item'] * 5 +
-                       1 * player.session.config['possible_bonus_for_each_score_report'] *
+                       1*player.session.config['possible_bonus_for_each_score_report'] *
                        len(Constants.participant_data[0])
         )
 
@@ -447,11 +361,11 @@ class Consent(Page):
     def before_next_page(player: Player, timeout_happened):
         i = 0
         index_1 = next(player.session.csv_index_iterator)
-        if index_1 + 2 < len(Constants.participant_data):
-            index_2 = index_1 + 1
-            index_3 = index_1 + 2
-        elif index_1 + 1 < len(Constants.participant_data):
-            index_2 = index_1 + 1
+        if index_1+2 < len(Constants.participant_data):
+            index_2 = index_1+1
+            index_3 = index_1+2
+        elif index_1+1 < len(Constants.participant_data):
+            index_2 = index_1+1
             index_3 = 0
         else:
             index_2 = 0
@@ -476,7 +390,7 @@ class Consent(Page):
                 player.session.nr_participants_in_treatments[treatment] += 1
                 return
             treatment = next(player.session.treatment_iterator)
-        player.treatment = treatment
+        player.treatment = treatment        
 
 
 class Start(Page):  # Necessary to allow externally assigning treatments in tests
@@ -500,12 +414,6 @@ class Demographics(Page):
         print(f"INFO: payoff is now: '{player.payoff}'")
 
 
-class Debrief(Page):
-    form_model = "player"
-    form_fields = ["aa_criterion", "aa_criterion_sc", "information_suff", "instructions_clear",
-                   "goal_clear", "other_comm"]
-
-
 class Introduction(Page):
     form_model = "player"
     form_fields = ["att_2"]
@@ -523,59 +431,31 @@ class ComprehensionCheckB(Page):
     form_fields = ["quiz_1b", "quiz_2"]
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_b()
-        return dict(fields=fields, show_solutions=False)
-
-    # @staticmethod
-    # def vars_for_template(player):
-    #     return dict(
-    #         treatment=player.treatment,
-    #         bonus=player.session.config['possible_bonus_for_each_score_report'],
-    #         # percentage=player.percentage_correct
-    #     )
-
-    @staticmethod
-    def is_displayed(player):
-        return player.treatment == 'control'
-
-    # @staticmethod
-    # def error_message(player, values):
-    #     solutions = dict(
-    #         quiz_1b=2,
-    #         quiz_2=3,
-    #     )
-    #
-    #     error_messages = dict()
-    #
-    #     for field_name in solutions:
-    #         if values[field_name] != solutions[field_name]:
-    #             error_messages[field_name] = 'Wrong answer'
-    #
-    #     return error_messages
-
-
-class ComprehensionResultsB(Page):
-    form_model = 'player'
-    form_fields = ['quiz_1b', 'quiz_2']
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
 
     @staticmethod
     def is_displayed(player):
         return player.treatment == 'control'
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_b()
-        # we add an extra entry 'is_correct' (True/False) to each field
-        for d in fields:
-            d['is_correct'] = getattr(player, d['name']) == d['solution']
-        return dict(fields=fields, show_solutions=True)
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1b=2,
+            quiz_2=3,
+        )
 
-    @staticmethod
-    def error_message(player: Player, values):
-        for field in values:
-            if getattr(player, field) != values[field]:
-                return "A field was somehow changed but this page is read-only."
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
 
 
 class ComprehensionCheckC(Page):
@@ -583,59 +463,31 @@ class ComprehensionCheckC(Page):
     form_fields = ["quiz_1c", "quiz_2"]
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_c()
-        return dict(fields=fields, show_solutions=False)
-
-    # @staticmethod
-    # def vars_for_template(player):
-    #     return dict(
-    #         treatment=player.treatment,
-    #         bonus=player.session.config['possible_bonus_for_each_score_report'],
-    #         # percentage=player.percentage_correct
-    #     )
-
-    @staticmethod
-    def is_displayed(player):
-        return player.treatment == 'caste'
-    #
-    # @staticmethod
-    # def error_message(player, values):
-    #     solutions = dict(
-    #         quiz_1c=2,
-    #         quiz_2=3,
-    #     )
-    #
-    #     error_messages = dict()
-    #
-    #     for field_name in solutions:
-    #         if values[field_name] != solutions[field_name]:
-    #             error_messages[field_name] = 'Wrong answer'
-    #
-    #     return error_messages
-
-
-class ComprehensionResultsC(Page):
-    form_model = 'player'
-    form_fields = ['quiz_1c', 'quiz_2']
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
 
     @staticmethod
     def is_displayed(player):
         return player.treatment == 'caste'
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_c()
-        # we add an extra entry 'is_correct' (True/False) to each field
-        for d in fields:
-            d['is_correct'] = getattr(player, d['name']) == d['solution']
-        return dict(fields=fields, show_solutions=True)
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1c=2,
+            quiz_2=3,
+        )
 
-    @staticmethod
-    def error_message(player: Player, values):
-        for field in values:
-            if getattr(player, field) != values[field]:
-                return "A field was somehow changed but this page is read-only."
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
 
 
 class ComprehensionCheckI(Page):
@@ -643,65 +495,37 @@ class ComprehensionCheckI(Page):
     form_fields = ["quiz_1i", "quiz_2"]
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_i()
-        return dict(fields=fields, show_solutions=False)
-
-    # @staticmethod
-    # def vars_for_template(player):
-    #     return dict(
-    #         treatment=player.treatment,
-    #         bonus=player.session.config['possible_bonus_for_each_score_report'],
-    #         # percentage=player.percentage_correct
-    #     )
-
-    @staticmethod
-    def is_displayed(player):
-        return player.treatment == 'ews'
-
-    # @staticmethod
-    # def error_message(player, values):
-    #     solutions = dict(
-    #         quiz_1i=2,
-    #         quiz_2=3,
-    #     )
-    #
-    #     error_messages = dict()
-    #
-    #     for field_name in solutions:
-    #         if values[field_name] != solutions[field_name]:
-    #             error_messages[field_name] = 'Wrong answer'
-    #
-    #     return error_messages
-
-
-class ComprehensionResultsI(Page):
-    form_model = 'player'
-    form_fields = ['quiz_1i', 'quiz_2']
+    def vars_for_template(player):
+        return dict(
+            treatment=player.treatment,
+            bonus=player.session.config['possible_bonus_for_each_score_report'],
+            #percentage=player.percentage_correct
+        )
 
     @staticmethod
     def is_displayed(player):
         return player.treatment == 'ews'
 
     @staticmethod
-    def vars_for_template(player: Player):
-        fields = get_quiz_data_i()
-        # we add an extra entry 'is_correct' (True/False) to each field
-        for d in fields:
-            d['is_correct'] = getattr(player, d['name']) == d['solution']
-        return dict(fields=fields, show_solutions=True)
+    def error_message(player, values):
+        solutions = dict(
+            quiz_1i=2,
+            quiz_2=3,
+        )
 
-    @staticmethod
-    def error_message(player: Player, values):
-        for field in values:
-            if getattr(player, field) != values[field]:
-                return "A field was somehow changed but this page is read-only."
+        error_messages = dict()
+
+        for field_name in solutions:
+            if values[field_name] != solutions[field_name]:
+                error_messages[field_name] = 'Wrong answer'
+
+        return error_messages
 
 
-class ScoreGuessing(Page):  # task 1 page
+class ScoreGuessing(Page): # task 1 page
     form_model = "player"
     form_fields = [f"task_1_guessed_score_ID{i}" for i in range(
-        1, len(Constants.participant_data[0]) + 1
+        1, len(Constants.participant_data[0])+1
     )]
 
     @staticmethod
@@ -745,7 +569,7 @@ class ScoreGuessing(Page):  # task 1 page
         answer_solution_pairs = []
         # for participant in Constants.participant_data_for_treatment[player.treatment][
         #         player.csv_data_index_task_1]:
-        for participant in Constants.participant_data[0]:
+        for participant in Constants.participant_data[0]: 
             answer = eval(f"player.task_1_guessed_score_{participant['Participant ID']}")
             answer_solution_pairs.append((answer, int(participant["Score"])))
 
@@ -767,7 +591,7 @@ class ScoreGuessing(Page):  # task 1 page
 class ScoreGuessing2(Page):
     form_model = "player"
     form_fields = [f"task_2_guessed_score_ID{i}" for i in range(
-        1, len(Constants.participant_data[1]) + 1
+        1, len(Constants.participant_data[1])+1
     )]
 
     @staticmethod
@@ -840,7 +664,7 @@ class ScoreGuessing2(Page):
 class ScoreGuessing3(Page):
     form_model = "player"
     form_fields = [f"task_3_guessed_score_ID{i}" for i in range(
-        1, len(Constants.participant_data[2]) + 1
+        1, len(Constants.participant_data[2])+1
     )]
 
     @staticmethod
@@ -900,8 +724,7 @@ class ScoreGuessing3(Page):
             if prediction_error ** 2 < random_nr:
                 if player.session.config["score_guessing_payoff_mode"] == 3:
                     player.payoff += player.session.config['possible_bonus_for_each_score_report']
-                    player.payoff_relevant_bonus_score_guessing += player.session.config[
-                        'possible_bonus_for_each_score_report']
+                    player.payoff_relevant_bonus_score_guessing += player.session.config['possible_bonus_for_each_score_report']
                     print("INFO: player earned bonus for task 3: "
                           f"'{player.session.config['possible_bonus_for_each_score_report']}'")
                     print(f"INFO: payoff is now: '{player.payoff}'")
@@ -963,15 +786,11 @@ page_sequence = [Consent,
                  Start,
                  Introduction,
                  ComprehensionCheckB,
-                 ComprehensionResultsB,
                  ComprehensionCheckC,
-                 ComprehensionResultsC,
                  ComprehensionCheckI,
-                 ComprehensionResultsI,
                  ScoreGuessing,
                  ScoreGuessing2,
                  ScoreGuessing3,
                  CRT,
                  Demographics,
-                 Results,
-                 Debrief]
+                 Results]
