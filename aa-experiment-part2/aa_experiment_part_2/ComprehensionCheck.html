@@ -1,18 +1,35 @@
 {{ block title }}
-    Comprehension Check
+    Check
 {{ endblock }}
 {{ block content }}
-
+    {{ if treatment == "control" }}
         <div>
             We will now make sure that you understood the instructions. When you have answered the questions below,
             please click the button at the bottom of the screen to proceed. If any of your answers are incorrect, the
-            computer will tell you so and you will have the opportunity to answer that question again.
+            computer will tell you so and you have to answer that question again.
         </div>
+        <div>
+            <em>Question 1: select the correct answer</em><br>
+            The score of a participant who had {{ percentage }}% correct answers is
+            <table>
+                <tr>
+                    <td>{{ formfield 'comprehension_check_answer_grade'}}</td>
+                    <td style="min-width: 40%"></td>
+                    <td>
+                        Score A: 75-100% correct answers<br>
+                        Score B: 50-74% correct answers<br>
+                        Score C: 25-49% correct answers<br>
+                        Score D: 0-24% correct answers<br>
 
-    {{ formfield 'quiz_1b'}}
-    {{ formfield 'quiz_2'}}
+                    </td>
+                </tr>
+            </table>
+            <br><br>
+            <em>Question 2: select the correct answer</em><br>
+            
 
-    {{ form.errors}}
+        </div>
+    {{ endif }}
     {{ next_button }}
 
 {{ endblock }}
