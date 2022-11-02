@@ -1,6 +1,6 @@
 # oTree-may-not-overwrite-this-file
-otree[mturk]>=5.0.0
+otree[mturk]>=5.0.0a21
 psycopg2>=2.8.4
-pandas
+pandas>=1.5.1
 pytest
 requests
