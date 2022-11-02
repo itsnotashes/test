@@ -292,6 +292,13 @@ class Player(BasePlayer):
     del j  # Necessary to avoid otree complaining that this variable is not stored in the db
     del i  # Same reason as with j
 
+    for j in range(1, len(Constants.participant_data[0])+1):
+        exec(f"allocation_ID{j} = "
+                "models.IntegerField(label='', min=0, max=200)")
+    del j  # Necessary to avoid otree complaining that this variable is not stored in the db
+
+
+
 
 class Consent(Page):
     form_model = "player"
@@ -617,6 +624,46 @@ class ScoreGuessing3(Page):
                 player.payoff_relevant_score_guessing_tasks.strip(", ")
 
 
+class Allocation(Page):
+    form_model = "player"
+    form_fields = [f"allocation_ID{i}" for i in range(
+        1, len(Constants.participant_data[2])+1
+    )]
+
+    @staticmethod
+    def error_message(player: Player, values):
+        scores = []
+        grades = []
+        sum = 0
+        for form_field in Allocation.form_fields:
+            sum += values[form_field]
+        if sum != 200:
+            return "The sum of all allocations must be 200."
+
+    @staticmethod
+    def vars_for_template(player):
+        # # copy() necessary to avoid otree unnecessarily complaining with 'MustCopyError'
+        # participants = deepcopy(Constants.participant_data_for_treatment[player.treatment][
+        #                             player.csv_data_index_task_3].copy())
+        # for i in range(len(participants)):
+        #     participants[i][
+        #         "formfield_name"] = f"task_3_guessed_score_{participants[i]['Participant ID']}"
+        # return dict(
+        #     treatment=player.treatment,
+        #     keys=Constants.participant_data_for_treatment[player.treatment][
+        #             player.csv_data_index_task_3][0].keys(),
+        #     participant_data=participants
+        # )
+        participants = deepcopy(Constants.participant_data[2].copy())
+        for i in range(len(participants)):
+            participants[i][
+                "formfield_name"] = f"allocation_{participants[i]['Participant ID']}"
+        return dict(
+            treatment=player.treatment,
+            keys=Constants.participant_data[2][0].keys(),
+            participant_data=participants
+        )
+
 class CRT(Page):
     form_model = "player"
     form_fields = [f"crt_{nr}" for nr in range(1, 5 + 1)]
@@ -657,6 +704,7 @@ class Results(Page):
 page_sequence = [Consent,
                  Start,
                  Introduction,
+                 Allocation,
                  # ComprehensionCheck,  # If reactivated, add questions for all treatment groups
                  ScoreGuessing,
                  ScoreGuessing2,
