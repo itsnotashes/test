@@ -714,11 +714,11 @@ class Results(Page):
 page_sequence = [Consent,
                  Start,
                  Introduction,
-                 Allocation,
                  # ComprehensionCheck,  # If reactivated, add questions for all treatment groups
                  ScoreGuessing,
                  ScoreGuessing2,
                  ScoreGuessing3,
+                 Allocation,
                  CRT,
                  Demographics,
                  Results]
