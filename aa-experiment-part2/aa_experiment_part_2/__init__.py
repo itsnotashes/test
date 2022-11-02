@@ -84,6 +84,7 @@ class Constants(BaseConstants):
     participant_data, csv_names = read_all_csvs_from_folder(CSV_PATH)
     print("CSV read order:", csv_names)
     participant_data_for_treatment = dict()
+    unique_ids = ["111", "222", "333", "444", "555", "666", "777", "888", "999", "000"]
     # participant_data_for_treatment[TREATMENTS[0]] = sort_participant_data(participant_data)
     # participant_data_for_treatment[TREATMENTS[1]] = sort_participant_data(participant_data,
     #                                                                       "AA caste")
@@ -120,6 +121,9 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     consent_given = models.BooleanField(initial=False)
     treatment = models.StringField(initial="not assigned")
+
+    
+    unique_id = models.StringField(label="Please enter your ID here:")
 
     # Index of Constant.participant_data to avoid having the same data twice for one participant
     csv_data_index_task_1 = models.IntegerField(blank=True, initial=0)
@@ -355,7 +359,13 @@ class Consent(Page):
 
 
 class Start(Page):  # Necessary to allow externally assigning treatments in tests
-    pass
+    form_model = "player"
+    form_fields = ["unique_id"]
+
+    @staticmethod
+    def error_message(player: Player, values):
+        if values["unique_id"] not in Constants.unique_ids:
+            return "Invalid unique ID."
 
 
 class Demographics(Page):
