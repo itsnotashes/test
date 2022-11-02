@@ -170,6 +170,8 @@ class Player(BasePlayer):
         "General Category"
     ])
 
+    field_of_study = models.StringField(label="What is your field of study?")
+
     household_size = models.IntegerField(min=0, label="How many people live in your households?")
 
     years_of_education = models.IntegerField(min=0, label="How many years of education have you "
@@ -355,7 +357,7 @@ class Demographics(Page):
                    "household_size", "years_of_education", "occupation_father",
                    "occupation_father_other", "occupation_mother", "occupation_mother_other",
                    "fathers_education", "mothers_education", "income_less_than_100_000",
-                   "state_of_residence", "living_area"]
+                   "state_of_residence", "living_area", "field_of_study"]
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
